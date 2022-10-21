@@ -3,15 +3,25 @@ import 'dart:math';
 import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:just_audio_background/just_audio_background.dart';
 import 'package:scoped_model/scoped_model.dart';
+import 'package:uuid/uuid.dart';
 import 'package:tommyplayer/model.dart';
 
 /// Starting point
-void main() async {
+Future<void> main() async {
   // allow "async" in main
   WidgetsFlutterBinding.ensureInitialized();
 
+  // init background playback
+  await JustAudioBackground.init(
+    androidNotificationChannelId: 'com.mitrakov.self.player.channel',
+    androidNotificationChannelName: 'Audio playback',
+    androidNotificationOngoing: true,
+  );
+
   // create all primary objects
+  const uuid = Uuid();
   final model = MyModel();
   final player = AudioPlayer();
   final random = Random(DateTime.now().millisecondsSinceEpoch);
@@ -23,7 +33,9 @@ void main() async {
   final audioSource = ConcatenatingAudioSource(
     useLazyPreparation: true,
     shuffleOrder: DefaultShuffleOrder(random: random),
-    children: model.playlist.map((String file) => AudioSource.uri(Uri.parse(Uri.encodeFull("${MyModel.url}/$file")), tag: file)).toList()
+    children: model.playlist.map((String file) => 
+      AudioSource.uri(Uri.parse(Uri.encodeFull("${MyModel.url}/$file")), tag: MediaItem(id: uuid.v4(), title: file))
+    ).toList()
   );
   player.setAudioSource(audioSource);
   player.setLoopMode(LoopMode.all);
@@ -68,7 +80,7 @@ class _MainAppState extends State<MainApp> {
   void updateCurrentSong() {
     setState(() {
       final int index = widget.player.currentIndex ?? 0;
-      currentSong = "${widget.player.audioSource?.sequence[index].tag}";
+      currentSong = "${widget.player.audioSource?.sequence[index].tag.title}";
     });
   }
 
