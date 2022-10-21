@@ -20,9 +20,9 @@ class MyModel extends Model {
     final response = await http.get(Uri.parse(url));
     if (response.statusCode == 200) {
       final htmlDoc = parse(response.body);
-      final elements  = htmlDoc.getElementsByTagName("a");
+      final elements = htmlDoc.getElementsByTagName("a");
       _playlist.clear();
-      _playlist.addAll(elements.map((e) => e.innerHtml));
+      _playlist.addAll(elements.map((e) => e.text));
       _playlist.shuffle(_random);
       print("Playlist: $_playlist");
     } else throw Exception("Cannot load from $url");
