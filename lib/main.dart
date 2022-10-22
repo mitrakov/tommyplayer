@@ -10,6 +10,8 @@ import 'package:tommyplayer/model.dart';
 
 /// Starting point
 Future<void> main() async {
+  const int PLAYLIST_SIZE = 100;    // TODO: will "hang" on high values! Need to optimize
+
   // allow "async" in main
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -33,11 +35,11 @@ Future<void> main() async {
   final audioSource = ConcatenatingAudioSource(
     useLazyPreparation: true,
     shuffleOrder: DefaultShuffleOrder(random: random),
-    children: model.playlist.map((String file) => 
+    children: model.playlist.take(PLAYLIST_SIZE).map((String file) =>
       AudioSource.uri(Uri.parse(Uri.encodeFull("${MyModel.url}/$file")), tag: MediaItem(id: uuid.v4(), title: file))
     ).toList()
   );
-  player.setAudioSource(audioSource);
+  player.setAudioSource(audioSource, preload: false);
   player.setLoopMode(LoopMode.all);
   player.setShuffleModeEnabled(true);
 
