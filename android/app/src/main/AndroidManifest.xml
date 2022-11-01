@@ -1,7 +1,6 @@
 <!-- Make sure to have xmlns:tools="http://schemas.android.com/tools" in "manifest" tag -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    package="com.mitrakov.self.player.tommyplayer">
+    xmlns:tools="http://schemas.android.com/tools">
 
     <!-- Adds network permission. Also set "application->android:usesCleartextTraffic" to "true" to enable insecure http protocol -->
     <uses-permission android:name="android.permission.INTERNET"/>
