@@ -10,11 +10,13 @@ class MyModel extends Model {
   static const String url = "http://mitrakoff.com:2000/music";  // allow insecure "http" in settings!
   final Random _random = Random(DateTime.now().millisecondsSinceEpoch);
   final List<String> _playlist = [];
+  late Stream<String> _playlistStream;
 
   // getters
   /// List of file names with extension, without URL-encoding, without any URI paths. Example: ["Queen - Show must go on.mp3"]
-  List<String> get playlist => _playlist;
+  Stream<String> get playlistStream => _playlistStream;
 
+  // functions
   /// Loads all data from the web server asynchronously. Should be called once.
   Future loadAll() async {
     final response = await http.get(Uri.parse(url));
@@ -24,7 +26,8 @@ class MyModel extends Model {
       _playlist.clear();
       _playlist.addAll(elements.map((e) => e.text));
       _playlist.shuffle(_random);
-      print("Playlist: $_playlist");
+      _playlistStream = Stream.periodic(const Duration(milliseconds: 1), (i) => _playlist[i]).take(_playlist.length);
+      print("Loaded ${_playlist.length} songs; playlist: $_playlist");
     } else throw Exception("Cannot load from $url");
   }
 }
