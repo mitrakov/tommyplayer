@@ -1,5 +1,4 @@
 // ignore_for_file: avoid_print, use_key_in_widget_constructors, constant_identifier_names, curly_braces_in_flow_control_structures
-import 'dart:math';
 import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
@@ -9,9 +8,9 @@ import 'package:uuid/uuid.dart';
 import 'package:tommyplayer/model.dart';
 
 /// Starting point
+/// Xiaomi Redmi Note 9 Pro = Android 10.0 (API 29)
+/// Samsung SM-G930F (S7) = Android 8.0 (API 26)
 Future<void> main() async {
-  const int PLAYLIST_SIZE = 100;    // TODO: will "hang" on high values! Need to optimize
-
   // allow "async" in main
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -26,22 +25,19 @@ Future<void> main() async {
   const uuid = Uuid();
   final model = MyModel();
   final player = AudioPlayer();
-  final random = Random(DateTime.now().millisecondsSinceEpoch);
 
   // init model
   await model.loadAll();
 
   // init player
-  final audioSource = ConcatenatingAudioSource(
-    useLazyPreparation: true,
-    shuffleOrder: DefaultShuffleOrder(random: random),
-    children: model.playlist.take(PLAYLIST_SIZE).map((String file) =>
-      AudioSource.uri(Uri.parse(Uri.encodeFull("${MyModel.url}/$file")), tag: MediaItem(id: uuid.v4(), title: file))
-    ).toList()
-  );
-  player.setAudioSource(audioSource, preload: false);
+  // set "useLazyPreparation" to "true" to load as late as possible
+  // set "children" to [] to avoid loading tracks all-at-once!
+  final audioSource = ConcatenatingAudioSource(useLazyPreparation: true, children: []);
+  player.setAudioSource(audioSource, preload: false); // set preload to "false" to delay immediate loading
   player.setLoopMode(LoopMode.all);
-  player.setShuffleModeEnabled(true);
+
+  // async loading
+  model.playlistStream.listen((song) => audioSource.add(AudioSource.uri(Uri.parse(Uri.encodeFull("${MyModel.url}/$song")), tag: MediaItem(id: uuid.v4(), title: song))));
 
   // run!
   runApp(ScopedModel(model: model, child: MainApp(player)));
@@ -60,7 +56,6 @@ class MainApp extends StatefulWidget {
 }
 
 class _MainAppState extends State<MainApp> {
-  bool isPlaying = false;
   String currentSong = "";
 
   @override
@@ -72,24 +67,25 @@ class _MainAppState extends State<MainApp> {
 
   /// Callback for PLAY and PAUSE buttons
   void onPlayButtonClick() {
-    if (isPlaying) widget.player.pause(); else widget.player.play();
-    setState(() {
-      isPlaying = !isPlaying;
-    });
+    if (widget.player.playing) widget.player.pause();
+    else widget.player.play();
   }
 
   /// Updates current song name in "setState" manner
   void updateCurrentSong() {
-    setState(() {
-      final int index = widget.player.currentIndex ?? 0;
-      currentSong = "${widget.player.audioSource?.sequence[index].tag.title}";
-    });
+    final int? index = widget.player.currentIndex;
+    final List<IndexedAudioSource> seq = widget.player.audioSource?.sequence ?? [];
+    if (index != null && seq.isNotEmpty) {
+      setState(() {
+        currentSong = "${seq[index].tag.title}";
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: "Where is this title shown?",
+      title: "Hey-Hey",
       theme: ThemeData(primarySwatch: Colors.purple),
       home: ScopedModelDescendant<MyModel>(builder: (context, child, model) {
         return Scaffold(
@@ -111,8 +107,8 @@ class _MainAppState extends State<MainApp> {
                     ),
                     const SizedBox(width: MainApp.MARGIN),
                     IconButton(
-                      icon: Icon(isPlaying ? Icons.pause_circle_outlined : Icons.play_circle_outlined),
-                      color: isPlaying ? Colors.deepOrange : Colors.green,
+                      icon: Icon(widget.player.playing ? Icons.pause_circle_outlined : Icons.play_circle_outlined),
+                      color: widget.player.playing ? Colors.deepOrange : Colors.green,
                       iconSize: MainApp.ICON_SIZE,
                       onPressed: onPlayButtonClick
                     ),
