@@ -7,10 +7,7 @@ import 'package:scoped_model/scoped_model.dart';
 import 'package:uuid/uuid.dart';
 import 'package:tommyplayer/model.dart';
 
-/// Starting point
-/// Xiaomi Redmi Note 9 Pro = Android 10.0 (API 29)
-/// Samsung SM-G930F (S7) = Android 8.0 (API 26)
-Future<void> main() async {
+void main() async {
   // allow "async" in main
   WidgetsFlutterBinding.ensureInitialized();
 
