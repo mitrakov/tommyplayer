@@ -26,7 +26,7 @@ class MyModel extends Model {
       _playlist.clear();
       _playlist.addAll(elements.map((e) => e.text));
       _playlist.shuffle(_random);
-      _playlistStream = Stream.periodic(const Duration(milliseconds: 100), (i) => _playlist[i]).take(_playlist.length);
+      _playlistStream = Stream.periodic(const Duration(milliseconds: 500), (i) => _playlist[i]).take(_playlist.length);
       print("Loaded ${_playlist.length} songs; playlist: $_playlist");
     } else throw Exception("Cannot load from $url");
   }
