@@ -2,7 +2,7 @@
 name: tommyplayer
 description: Tommy's Player
 
-version: 23.5.21+9
+version: 23.8.25+10
 
 environment:
   sdk: ">=2.19.6 <3.0.0"
@@ -10,7 +10,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  just_audio: 0.9.33                    # audio player
+  just_audio: 0.9.34                    # audio player
   just_audio_background: 0.0.1-beta.10  # background playback support
   http: 0.13.6                          # http support
   html: 0.15.3                          # html support
