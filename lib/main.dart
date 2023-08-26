@@ -1,16 +1,23 @@
 // ignore_for_file: avoid_print, use_key_in_widget_constructors, constant_identifier_names, curly_braces_in_flow_control_structures
+import 'dart:math';
 import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:just_audio_background/just_audio_background.dart';
 import 'package:scoped_model/scoped_model.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 import 'package:tommyplayer/model.dart';
 import 'package:tommyplayer/shuffle.dart';
 
+late SharedPreferences settings; // TODO futureBuilder
+
 void main() async {
   // allow "async" in main
   WidgetsFlutterBinding.ensureInitialized();
+
+  // obtain SharedPreferences
+  settings = await SharedPreferences.getInstance();
 
   // init background playback
   await JustAudioBackground.init(
@@ -35,10 +42,13 @@ void main() async {
   player.setLoopMode(LoopMode.all);
 
   // async loading
-  var i = 0;
+  final random = Random(DateTime.now().millisecondsSinceEpoch);
   model.playlistStream.listen((song) {
-    print("${i++}: Adding $song");
-    audioSource.add(AudioSource.uri(Uri.parse(Uri.encodeFull("${MyModel.url}/$song")), tag: MediaItem(id: uuid.v4(), title: song)));
+    final r = random.nextInt(5) + 1; // 1, 2, 3, 4, 5
+    final like = settings.getInt(song) ?? 999; // default is 999, in order to include a song to the playlist and ask user to "like" it
+    if (r <= like) {
+      audioSource.add(AudioSource.uri(Uri.parse(Uri.encodeFull("${MyModel.url}/$song")), tag: MediaItem(id: uuid.v4(), title: song)));
+    }
   });
 
   // run!
@@ -49,6 +59,7 @@ void main() async {
 class MainApp extends StatefulWidget {
   static const double MARGIN = 25; // margin between icons
   static const double ICON_SIZE = 65;
+  static const double ICON_SIZE_SMALL = 30;
   final AudioPlayer player;
 
   const MainApp(this.player);
@@ -87,11 +98,11 @@ class _MainAppState extends State<MainApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: "Hey-Hey",
+      title: "Tommy Player",
       theme: ThemeData(primarySwatch: Colors.purple),
       home: ScopedModelDescendant<MyModel>(builder: (context, child, model) {
         return Scaffold(
-          appBar: AppBar(title: const Text("Tommy's Player")),
+          appBar: AppBar(title: const Text("Tommy Player")),
           body: Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -120,6 +131,42 @@ class _MainAppState extends State<MainApp> {
                       color: Colors.blue,
                       iconSize: MainApp.ICON_SIZE,
                       onPressed: widget.player.seekToNext
+                    )
+                  ]
+                ),
+                const SizedBox(height: MainApp.MARGIN),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    IconButton(
+                      icon: const Icon(CupertinoIcons.star_fill),
+                      color: (settings.getInt(currentSong) ?? 0) >= 1 ? Colors.red : Colors.grey,
+                      iconSize: MainApp.ICON_SIZE_SMALL,
+                      onPressed: () => settings.setInt(currentSong, 1)
+                    ),
+                    IconButton(
+                      icon: const Icon(CupertinoIcons.star_fill),
+                      color: (settings.getInt(currentSong) ?? 0) >= 2 ? Colors.orange : Colors.grey,
+                      iconSize: MainApp.ICON_SIZE_SMALL,
+                      onPressed: () => settings.setInt(currentSong, 2)
+                    ),
+                    IconButton(
+                      icon: const Icon(CupertinoIcons.star_fill),
+                      color: (settings.getInt(currentSong) ?? 0) >= 3 ? Colors.yellow : Colors.grey,
+                      iconSize: MainApp.ICON_SIZE_SMALL,
+                      onPressed: () => settings.setInt(currentSong, 3)
+                    ),
+                    IconButton(
+                      icon: const Icon(CupertinoIcons.star_fill),
+                      color: (settings.getInt(currentSong) ?? 0) >= 4 ? Colors.cyan : Colors.grey,
+                      iconSize: MainApp.ICON_SIZE_SMALL,
+                      onPressed: () => settings.setInt(currentSong, 4)
+                    ),
+                    IconButton(
+                      icon: const Icon(CupertinoIcons.star_fill),
+                      color: (settings.getInt(currentSong) ?? 0) >= 5 ? Colors.green : Colors.grey,
+                      iconSize: MainApp.ICON_SIZE_SMALL,
+                      onPressed: () => settings.setInt(currentSong, 5)
                     )
                   ]
                 )

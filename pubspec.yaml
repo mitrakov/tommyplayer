@@ -2,7 +2,7 @@
 name: tommyplayer
 description: Tommy's Player
 
-version: 23.8.25+10
+version: 23.8.26+10
 
 environment:
   sdk: ">=2.19.6 <3.0.0"
@@ -17,6 +17,7 @@ dependencies:
   uuid: 3.0.7                           # uuid support
   scoped_model: 2.0.0                   # simple state management
   cupertino_icons: 1.0.5                # extra icons
+  shared_preferences: 2.2.0             # key-value storage
 
 dev_dependencies:
   flutter_test:

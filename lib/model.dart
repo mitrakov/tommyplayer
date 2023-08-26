@@ -6,6 +6,9 @@ import 'package:html/parser.dart';
 
 /// Main model class
 class MyModel extends Model {
+  static const THROTTLING_MSEC = 500;
+  static const MAX_PLAYLIST = 400;
+
   // vals
   static const String url = "http://mitrakoff.com:2000/music";  // allow insecure "http" in settings!
   final Random _random = Random(DateTime.now().millisecondsSinceEpoch);
@@ -26,7 +29,7 @@ class MyModel extends Model {
       _playlist.clear();
       _playlist.addAll(elements.map((e) => e.text));
       _playlist.shuffle(_random);
-      _playlistStream = Stream.periodic(const Duration(milliseconds: 500), (i) => _playlist[i]).take(_playlist.length);
+      _playlistStream = Stream.periodic(const Duration(milliseconds: THROTTLING_MSEC), (i) => _playlist[i]).take(min(_playlist.length, MAX_PLAYLIST));
       print("Loaded ${_playlist.length} songs; playlist: $_playlist");
     } else throw Exception("Cannot load from $url");
   }
