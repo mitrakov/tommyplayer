@@ -6,6 +6,7 @@ import 'package:just_audio_background/just_audio_background.dart';
 import 'package:scoped_model/scoped_model.dart';
 import 'package:uuid/uuid.dart';
 import 'package:tommyplayer/model.dart';
+import 'package:tommyplayer/shuffle.dart';
 
 void main() async {
   // allow "async" in main
@@ -29,12 +30,16 @@ void main() async {
   // init player
   // set "useLazyPreparation" to "true" to load as late as possible
   // set "children" to [] to avoid loading tracks all-at-once!
-  final audioSource = ConcatenatingAudioSource(useLazyPreparation: true, children: []);
+  final audioSource = ConcatenatingAudioSource(useLazyPreparation: true, children: [], shuffleOrder: NoShuffleOrder());
   player.setAudioSource(audioSource, preload: false); // set preload to "false" to delay immediate loading
   player.setLoopMode(LoopMode.all);
 
   // async loading
-  model.playlistStream.listen((song) => audioSource.add(AudioSource.uri(Uri.parse(Uri.encodeFull("${MyModel.url}/$song")), tag: MediaItem(id: uuid.v4(), title: song))));
+  var i = 0;
+  model.playlistStream.listen((song) {
+    print("${i++}: Adding $song");
+    audioSource.add(AudioSource.uri(Uri.parse(Uri.encodeFull("${MyModel.url}/$song")), tag: MediaItem(id: uuid.v4(), title: song)));
+  });
 
   // run!
   runApp(ScopedModel(model: model, child: MainApp(player)));
