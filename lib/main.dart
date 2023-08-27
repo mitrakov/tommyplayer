@@ -10,14 +10,12 @@ import 'package:uuid/uuid.dart';
 import 'package:tommyplayer/model.dart';
 import 'package:tommyplayer/shuffle.dart';
 
-late SharedPreferences settings; // TODO futureBuilder
-
 void main() async {
   // allow "async" in main
   WidgetsFlutterBinding.ensureInitialized();
 
   // obtain SharedPreferences
-  settings = await SharedPreferences.getInstance();
+  final settings = await SharedPreferences.getInstance();
 
   // init background playback
   await JustAudioBackground.init(
@@ -52,7 +50,7 @@ void main() async {
   });
 
   // run!
-  runApp(ScopedModel(model: model, child: MainApp(player)));
+  runApp(ScopedModel(model: model, child: MainApp(player, settings)));
 }
 
 /// Main app widget
@@ -61,8 +59,9 @@ class MainApp extends StatefulWidget {
   static const double ICON_SIZE = 65;
   static const double ICON_SIZE_SMALL = 30;
   final AudioPlayer player;
+  final SharedPreferences settings;
 
-  const MainApp(this.player);
+  const MainApp(this.player, this.settings);
 
   @override
   State<MainApp> createState() => _MainAppState();
@@ -95,8 +94,16 @@ class _MainAppState extends State<MainApp> {
     }
   }
 
+  /// Saves a user's "like" for a current song to Shared Preferences
+  void setLike(int like) async {
+    await widget.settings.setInt(currentSong, like);
+    setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
+    final player = widget.player;
+    final settings = widget.settings;
     return MaterialApp(
       title: "Tommy Player",
       theme: ThemeData(primarySwatch: Colors.purple),
@@ -116,12 +123,12 @@ class _MainAppState extends State<MainApp> {
                       icon: const Icon(CupertinoIcons.arrowshape_turn_up_left_circle),
                       color: Colors.blue,
                       iconSize: MainApp.ICON_SIZE,
-                      onPressed: widget.player.seekToPrevious
+                      onPressed: player.seekToPrevious
                     ),
                     const SizedBox(width: MainApp.MARGIN),
                     IconButton(
-                      icon: Icon(widget.player.playing ? Icons.pause_circle_outlined : Icons.play_circle_outlined),
-                      color: widget.player.playing ? Colors.deepOrange : Colors.green,
+                      icon: Icon(player.playing ? Icons.pause_circle_outlined : Icons.play_circle_outlined),
+                      color: player.playing ? Colors.deepOrange : Colors.green,
                       iconSize: MainApp.ICON_SIZE,
                       onPressed: onPlayButtonClick
                     ),
@@ -130,7 +137,7 @@ class _MainAppState extends State<MainApp> {
                       icon: const Icon(CupertinoIcons.arrowshape_turn_up_right_circle),
                       color: Colors.blue,
                       iconSize: MainApp.ICON_SIZE,
-                      onPressed: widget.player.seekToNext
+                      onPressed: player.seekToNext
                     )
                   ]
                 ),
@@ -142,31 +149,31 @@ class _MainAppState extends State<MainApp> {
                       icon: const Icon(CupertinoIcons.star_fill),
                       color: (settings.getInt(currentSong) ?? 0) >= 1 ? Colors.red : Colors.grey,
                       iconSize: MainApp.ICON_SIZE_SMALL,
-                      onPressed: () => settings.setInt(currentSong, 1)
+                      onPressed: () => setLike(1)
                     ),
                     IconButton(
                       icon: const Icon(CupertinoIcons.star_fill),
                       color: (settings.getInt(currentSong) ?? 0) >= 2 ? Colors.orange : Colors.grey,
                       iconSize: MainApp.ICON_SIZE_SMALL,
-                      onPressed: () => settings.setInt(currentSong, 2)
+                      onPressed: () => setLike(2)
                     ),
                     IconButton(
                       icon: const Icon(CupertinoIcons.star_fill),
                       color: (settings.getInt(currentSong) ?? 0) >= 3 ? Colors.yellow : Colors.grey,
                       iconSize: MainApp.ICON_SIZE_SMALL,
-                      onPressed: () => settings.setInt(currentSong, 3)
+                      onPressed: () => setLike(3)
                     ),
                     IconButton(
                       icon: const Icon(CupertinoIcons.star_fill),
                       color: (settings.getInt(currentSong) ?? 0) >= 4 ? Colors.cyan : Colors.grey,
                       iconSize: MainApp.ICON_SIZE_SMALL,
-                      onPressed: () => settings.setInt(currentSong, 4)
+                      onPressed: () => setLike(4)
                     ),
                     IconButton(
                       icon: const Icon(CupertinoIcons.star_fill),
                       color: (settings.getInt(currentSong) ?? 0) >= 5 ? Colors.green : Colors.grey,
                       iconSize: MainApp.ICON_SIZE_SMALL,
-                      onPressed: () => settings.setInt(currentSong, 5)
+                      onPressed: () => setLike(5)
                     )
                   ]
                 )
