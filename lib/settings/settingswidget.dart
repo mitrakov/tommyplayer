@@ -15,7 +15,7 @@ class SettingsWidget extends StatelessWidget {
           children: [
             Row(
               children: [
-                const Text("Hostname or IP-address:"),
+                const Text("Hostname or\nIP-address:"),
                 const SizedBox(width: 20),
                 Expanded(
                   child: TextField(controller: _serverUriCtrl, onChanged: Settings.instance.setServerUri, decoration: const InputDecoration(border: OutlineInputBorder())),
