@@ -1,5 +1,6 @@
 // ignore_for_file: avoid_print, use_key_in_widget_constructors, constant_identifier_names, curly_braces_in_flow_control_structures
 import 'dart:math';
+import 'package:f_logs/f_logs.dart';
 import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
@@ -46,8 +47,10 @@ void main() async {
   // async loading
   final random = Random(DateTime.now().millisecondsSinceEpoch);
   model.playlistStream.listen((song) {
-    final r = random.nextInt(5) + 1; // 1, 2, 3, 4, 5
-    final like = settings.getInt(song) ?? 999; // default is 999, in order to include a song to the playlist and ask user to "like" it
+    final r = random.nextDouble() * 5;          // uniformly distributed: [0..5)
+    final stars = settings.getInt(song) ?? 999; // 1,2,3,4,5 or 999 (default is 999, in order to include a song to the playlist and ask the user to rate it)
+    FLog.info(text: "$stars: $song");
+    final like = stars == 1 ? 0.2 : stars;      // decrease rate for shitty songs
     if (r <= like) {
       audioSource.add(AudioSource.uri(Uri.parse(Uri.encodeFull("${Settings.getServerUri()}/$song")), tag: MediaItem(id: uuid.v4(), title: song)));
     }
@@ -118,9 +121,7 @@ class _MainAppState extends State<MainApp> {
             actions: [
               IconButton(
                 icon: const Icon(CupertinoIcons.gear_big),
-                onPressed: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => SettingsWidget()));
-                }
+                onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => SettingsWidget()))
               )
             ],
           ),
