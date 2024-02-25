@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:just_audio_background/just_audio_background.dart';
 import 'package:scoped_model/scoped_model.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 import 'package:tommyplayer/settings/settings.dart';
 import 'package:tommyplayer/settings/settingswidget.dart';
@@ -18,9 +17,6 @@ void main() async {
   // allow "async" in main
   WidgetsFlutterBinding.ensureInitialized();
   await Settings.init();
-
-  // obtain SharedPreferences
-  final settings = await SharedPreferences.getInstance();
 
   // init background playback
   await JustAudioBackground.init(
@@ -48,7 +44,7 @@ void main() async {
   final random = Random(DateTime.now().millisecondsSinceEpoch);
   model.playlistStream.listen((song) {
     final r = random.nextDouble() * 5;          // uniformly distributed: [0..5)
-    final stars = settings.getInt(song) ?? 999; // 1,2,3,4,5 or 999 (default is 999, in order to include a song to the playlist and ask the user to rate it)
+    final stars = Settings.getStars(song) ?? 999; // 1,2,3,4,5 or 999 (default is 999, in order to include a song to the playlist and ask the user to rate it)
     FLog.info(text: "$stars: $song");
     final like = stars == 1 ? 0.2 : stars;      // decrease rate for shitty songs
     if (r <= like) {
@@ -57,7 +53,7 @@ void main() async {
   });
 
   // run!
-  runApp(ScopedModel(model: model, child: MainApp(player, settings)));
+  runApp(ScopedModel(model: model, child: MainApp(player)));
 }
 
 /// Main app widget
@@ -66,9 +62,8 @@ class MainApp extends StatefulWidget {
   static const double ICON_SIZE = 65;
   static const double ICON_SIZE_SMALL = 30;
   final AudioPlayer player;
-  final SharedPreferences settings;
 
-  const MainApp(this.player, this.settings);
+  const MainApp(this.player);
 
   @override
   State<MainApp> createState() => _MainAppState();
@@ -98,19 +93,19 @@ class _MainAppState extends State<MainApp> {
       setState(() {
         currentSong = "${seq[index].tag.title}";
       });
+      FLog.info(text: "Playing: $currentSong");
     }
   }
 
   /// Saves a user's "like" for a current song to Shared Preferences
   void _setLike(int like) async {
-    await widget.settings.setInt(currentSong, like);
-    setState(() {});
+    await Settings.setStars(currentSong, like);
+    setState(() {}); // to redraw the stars
   }
 
   @override
   Widget build(BuildContext context) {
     final player = widget.player;
-    final settings = widget.settings;
     return MaterialApp(
       title: "Tommy Player",
       theme: ThemeData(primarySwatch: Colors.purple),
@@ -162,31 +157,31 @@ class _MainAppState extends State<MainApp> {
                   children: [
                     IconButton(
                       icon: const Icon(CupertinoIcons.star_fill),
-                      color: (settings.getInt(currentSong) ?? 0) >= 1 ? Colors.red : Colors.grey,
+                      color: (Settings.getStars(currentSong) ?? 0) >= 1 ? Colors.red : Colors.grey,
                       iconSize: MainApp.ICON_SIZE_SMALL,
                       onPressed: () => _setLike(1)
                     ),
                     IconButton(
                       icon: const Icon(CupertinoIcons.star_fill),
-                      color: (settings.getInt(currentSong) ?? 0) >= 2 ? Colors.orange : Colors.grey,
+                      color: (Settings.getStars(currentSong) ?? 0) >= 2 ? Colors.orange : Colors.grey,
                       iconSize: MainApp.ICON_SIZE_SMALL,
                       onPressed: () => _setLike(2)
                     ),
                     IconButton(
                       icon: const Icon(CupertinoIcons.star_fill),
-                      color: (settings.getInt(currentSong) ?? 0) >= 3 ? Colors.yellow : Colors.grey,
+                      color: (Settings.getStars(currentSong) ?? 0) >= 3 ? Colors.yellow : Colors.grey,
                       iconSize: MainApp.ICON_SIZE_SMALL,
                       onPressed: () => _setLike(3)
                     ),
                     IconButton(
                       icon: const Icon(CupertinoIcons.star_fill),
-                      color: (settings.getInt(currentSong) ?? 0) >= 4 ? Colors.cyan : Colors.grey,
+                      color: (Settings.getStars(currentSong) ?? 0) >= 4 ? Colors.cyan : Colors.grey,
                       iconSize: MainApp.ICON_SIZE_SMALL,
                       onPressed: () => _setLike(4)
                     ),
                     IconButton(
                       icon: const Icon(CupertinoIcons.star_fill),
-                      color: (settings.getInt(currentSong) ?? 0) >= 5 ? Colors.green : Colors.grey,
+                      color: (Settings.getStars(currentSong) ?? 0) >= 5 ? Colors.green : Colors.grey,
                       iconSize: MainApp.ICON_SIZE_SMALL,
                       onPressed: () => _setLike(5)
                     )
