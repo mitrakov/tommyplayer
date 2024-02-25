@@ -45,7 +45,6 @@ void main() async {
   model.playlistStream.listen((song) {
     final r = random.nextDouble() * 5;                     // uniformly distributed: [0..5)
     final stars = Settings.instance.getStars(song) ?? 999; // 1,2,3,4,5 or 999 (default is 999, in order to include a song to the playlist and ask the user to rate it)
-    FLog.info(text: "$stars: $song");
     final like = stars == 1 ? 0.2 : stars;                 // decrease rate for shitty songs
     if (r <= like) {
       audioSource.add(AudioSource.uri(Uri.parse(Uri.encodeFull("${Settings.instance.getServerUri()}/$song")), tag: MediaItem(id: uuid.v4(), title: song)));
