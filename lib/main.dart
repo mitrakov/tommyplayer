@@ -7,12 +7,16 @@ import 'package:just_audio_background/just_audio_background.dart';
 import 'package:scoped_model/scoped_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
+import 'package:tommyplayer/settings/settings.dart';
+import 'package:tommyplayer/settings/settingswidget.dart';
 import 'package:tommyplayer/model.dart';
 import 'package:tommyplayer/shuffle.dart';
 
+// allow insecure "http" in settings!
 void main() async {
   // allow "async" in main
   WidgetsFlutterBinding.ensureInitialized();
+  await Settings.init();
 
   // obtain SharedPreferences
   final settings = await SharedPreferences.getInstance();
@@ -45,7 +49,7 @@ void main() async {
     final r = random.nextInt(5) + 1; // 1, 2, 3, 4, 5
     final like = settings.getInt(song) ?? 999; // default is 999, in order to include a song to the playlist and ask user to "like" it
     if (r <= like) {
-      audioSource.add(AudioSource.uri(Uri.parse(Uri.encodeFull("${MyModel.url}/$song")), tag: MediaItem(id: uuid.v4(), title: song)));
+      audioSource.add(AudioSource.uri(Uri.parse(Uri.encodeFull("${Settings.getServerUri()}/$song")), tag: MediaItem(id: uuid.v4(), title: song)));
     }
   });
 
@@ -74,17 +78,17 @@ class _MainAppState extends State<MainApp> {
   void initState() {
     // subscribe on the playbackEvent stream to get a new song name once playback finished
     super.initState();
-    widget.player.playbackEventStream.listen((e) => updateCurrentSong());
+    widget.player.playbackEventStream.listen((e) => _updateCurrentSong());
   }
 
   /// Callback for PLAY and PAUSE buttons
-  void onPlayButtonClick() {
+  void _onPlayButtonClick() {
     if (widget.player.playing) widget.player.pause();
     else widget.player.play();
   }
 
   /// Updates current song name in "setState" manner
-  void updateCurrentSong() {
+  void _updateCurrentSong() {
     final int? index = widget.player.currentIndex;
     final List<IndexedAudioSource> seq = widget.player.audioSource?.sequence ?? [];
     if (index != null && seq.isNotEmpty) {
@@ -95,7 +99,7 @@ class _MainAppState extends State<MainApp> {
   }
 
   /// Saves a user's "like" for a current song to Shared Preferences
-  void setLike(int like) async {
+  void _setLike(int like) async {
     await widget.settings.setInt(currentSong, like);
     setState(() {});
   }
@@ -109,7 +113,17 @@ class _MainAppState extends State<MainApp> {
       theme: ThemeData(primarySwatch: Colors.purple),
       home: ScopedModelDescendant<MyModel>(builder: (context, child, model) {
         return Scaffold(
-          appBar: AppBar(title: const Text("Tommy Player")),
+          appBar: AppBar(
+            title: const Text("Tommy Player"),
+            actions: [
+              IconButton(
+                icon: const Icon(CupertinoIcons.gear_big),
+                onPressed: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => SettingsWidget()));
+                }
+              )
+            ],
+          ),
           body: Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -130,7 +144,7 @@ class _MainAppState extends State<MainApp> {
                       icon: Icon(player.playing ? Icons.pause_circle_outlined : Icons.play_circle_outlined),
                       color: player.playing ? Colors.deepOrange : Colors.green,
                       iconSize: MainApp.ICON_SIZE,
-                      onPressed: onPlayButtonClick
+                      onPressed: _onPlayButtonClick
                     ),
                     const SizedBox(width: MainApp.MARGIN),
                     IconButton(
@@ -149,31 +163,31 @@ class _MainAppState extends State<MainApp> {
                       icon: const Icon(CupertinoIcons.star_fill),
                       color: (settings.getInt(currentSong) ?? 0) >= 1 ? Colors.red : Colors.grey,
                       iconSize: MainApp.ICON_SIZE_SMALL,
-                      onPressed: () => setLike(1)
+                      onPressed: () => _setLike(1)
                     ),
                     IconButton(
                       icon: const Icon(CupertinoIcons.star_fill),
                       color: (settings.getInt(currentSong) ?? 0) >= 2 ? Colors.orange : Colors.grey,
                       iconSize: MainApp.ICON_SIZE_SMALL,
-                      onPressed: () => setLike(2)
+                      onPressed: () => _setLike(2)
                     ),
                     IconButton(
                       icon: const Icon(CupertinoIcons.star_fill),
                       color: (settings.getInt(currentSong) ?? 0) >= 3 ? Colors.yellow : Colors.grey,
                       iconSize: MainApp.ICON_SIZE_SMALL,
-                      onPressed: () => setLike(3)
+                      onPressed: () => _setLike(3)
                     ),
                     IconButton(
                       icon: const Icon(CupertinoIcons.star_fill),
                       color: (settings.getInt(currentSong) ?? 0) >= 4 ? Colors.cyan : Colors.grey,
                       iconSize: MainApp.ICON_SIZE_SMALL,
-                      onPressed: () => setLike(4)
+                      onPressed: () => _setLike(4)
                     ),
                     IconButton(
                       icon: const Icon(CupertinoIcons.star_fill),
                       color: (settings.getInt(currentSong) ?? 0) >= 5 ? Colors.green : Colors.grey,
                       iconSize: MainApp.ICON_SIZE_SMALL,
-                      onPressed: () => setLike(5)
+                      onPressed: () => _setLike(5)
                     )
                   ]
                 )

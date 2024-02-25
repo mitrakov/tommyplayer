@@ -1,8 +1,10 @@
-// ignore_for_file: curly_braces_in_flow_control_structures, avoid_print
+// ignore_for_file: curly_braces_in_flow_control_structures
 import 'dart:math';
+import 'package:f_logs/f_logs.dart';
 import 'package:scoped_model/scoped_model.dart';
 import 'package:http/http.dart' as http;
 import 'package:html/parser.dart';
+import 'package:tommyplayer/settings/settings.dart';
 
 /// Main model class
 class MyModel extends Model {
@@ -10,7 +12,6 @@ class MyModel extends Model {
   static const MAX_PLAYLIST = 400;
 
   // vals
-  static const String url = "http://mitrakoff.com:2000/music";  // allow insecure "http" in settings!
   final Random _random = Random(DateTime.now().millisecondsSinceEpoch);
   final List<String> _playlist = [];
   late Stream<String> _playlistStream;
@@ -22,7 +23,7 @@ class MyModel extends Model {
   // functions
   /// Loads all data from the web server asynchronously. Should be called once.
   Future loadAll() async {
-    final response = await http.get(Uri.parse(url));
+    final response = await http.get(Uri.parse(Settings.getServerUri()));
     if (response.statusCode == 200) {
       final htmlDoc = parse(response.body);
       final elements = htmlDoc.getElementsByTagName("a");
@@ -30,7 +31,7 @@ class MyModel extends Model {
       _playlist.addAll(elements.map((e) => e.text));
       _playlist.shuffle(_random);
       _playlistStream = Stream.periodic(const Duration(milliseconds: THROTTLING_MSEC), (i) => _playlist[i]).take(min(_playlist.length, MAX_PLAYLIST));
-      print("Loaded ${_playlist.length} songs; playlist: $_playlist");
-    } else throw Exception("Cannot load from $url");
+      FLog.info(text: "Loaded ${_playlist.length} songs from ${Settings.getServerUri()}; playlist: $_playlist");
+    } else throw Exception("Cannot load from ${Settings.getServerUri()}");
   }
 }
