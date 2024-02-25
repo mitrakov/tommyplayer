@@ -23,7 +23,8 @@ class MyModel extends Model {
   // functions
   /// Loads all data from the web server asynchronously. Should be called once.
   Future loadAll() async {
-    final response = await http.get(Uri.parse(Settings.getServerUri()));
+    final serverUri = Settings.instance.getServerUri();
+    final response = await http.get(Uri.parse(serverUri));
     if (response.statusCode == 200) {
       final htmlDoc = parse(response.body);
       final elements = htmlDoc.getElementsByTagName("a");
@@ -31,7 +32,7 @@ class MyModel extends Model {
       _playlist.addAll(elements.map((e) => e.text));
       _playlist.shuffle(_random);
       _playlistStream = Stream.periodic(const Duration(milliseconds: THROTTLING_MSEC), (i) => _playlist[i]).take(min(_playlist.length, MAX_PLAYLIST));
-      FLog.info(text: "Loaded ${_playlist.length} songs from ${Settings.getServerUri()}; playlist: $_playlist");
-    } else throw Exception("Cannot load from ${Settings.getServerUri()}");
+      FLog.info(text: "Loaded ${_playlist.length} songs from $serverUri; playlist: $_playlist");
+    } else throw Exception("Cannot load from $serverUri");
   }
 }

@@ -16,7 +16,7 @@ import 'package:tommyplayer/shuffle.dart';
 void main() async {
   // allow "async" in main
   WidgetsFlutterBinding.ensureInitialized();
-  await Settings.init();
+  await Settings.instance.init();
 
   // init background playback
   await JustAudioBackground.init(
@@ -43,12 +43,12 @@ void main() async {
   // async loading
   final random = Random(DateTime.now().millisecondsSinceEpoch);
   model.playlistStream.listen((song) {
-    final r = random.nextDouble() * 5;          // uniformly distributed: [0..5)
-    final stars = Settings.getStars(song) ?? 999; // 1,2,3,4,5 or 999 (default is 999, in order to include a song to the playlist and ask the user to rate it)
+    final r = random.nextDouble() * 5;                     // uniformly distributed: [0..5)
+    final stars = Settings.instance.getStars(song) ?? 999; // 1,2,3,4,5 or 999 (default is 999, in order to include a song to the playlist and ask the user to rate it)
     FLog.info(text: "$stars: $song");
-    final like = stars == 1 ? 0.2 : stars;      // decrease rate for shitty songs
+    final like = stars == 1 ? 0.2 : stars;                 // decrease rate for shitty songs
     if (r <= like) {
-      audioSource.add(AudioSource.uri(Uri.parse(Uri.encodeFull("${Settings.getServerUri()}/$song")), tag: MediaItem(id: uuid.v4(), title: song)));
+      audioSource.add(AudioSource.uri(Uri.parse(Uri.encodeFull("${Settings.instance.getServerUri()}/$song")), tag: MediaItem(id: uuid.v4(), title: song)));
     }
   });
 
@@ -99,7 +99,7 @@ class _MainAppState extends State<MainApp> {
 
   /// Saves a user's "like" for a current song to Shared Preferences
   void _setLike(int like) async {
-    await Settings.setStars(currentSong, like);
+    await Settings.instance.setStars(currentSong, like);
     setState(() {}); // to redraw the stars
   }
 
@@ -110,6 +110,7 @@ class _MainAppState extends State<MainApp> {
       title: "Tommy Player",
       theme: ThemeData(primarySwatch: Colors.purple),
       home: ScopedModelDescendant<MyModel>(builder: (context, child, model) {
+        final stars = Settings.instance.getStars(currentSong) ?? 0;
         return Scaffold(
           appBar: AppBar(
             title: const Text("Tommy Player"),
@@ -133,21 +134,21 @@ class _MainAppState extends State<MainApp> {
                       icon: const Icon(CupertinoIcons.arrowshape_turn_up_left_circle),
                       color: Colors.blue,
                       iconSize: MainApp.ICON_SIZE,
-                      onPressed: player.seekToPrevious
+                      onPressed: player.seekToPrevious,
                     ),
                     const SizedBox(width: MainApp.MARGIN),
                     IconButton(
                       icon: Icon(player.playing ? Icons.pause_circle_outlined : Icons.play_circle_outlined),
                       color: player.playing ? Colors.deepOrange : Colors.green,
                       iconSize: MainApp.ICON_SIZE,
-                      onPressed: _onPlayButtonClick
+                      onPressed: _onPlayButtonClick,
                     ),
                     const SizedBox(width: MainApp.MARGIN),
                     IconButton(
                       icon: const Icon(CupertinoIcons.arrowshape_turn_up_right_circle),
                       color: Colors.blue,
                       iconSize: MainApp.ICON_SIZE,
-                      onPressed: player.seekToNext
+                      onPressed: player.seekToNext,
                     )
                   ]
                 ),
@@ -157,41 +158,41 @@ class _MainAppState extends State<MainApp> {
                   children: [
                     IconButton(
                       icon: const Icon(CupertinoIcons.star_fill),
-                      color: (Settings.getStars(currentSong) ?? 0) >= 1 ? Colors.red : Colors.grey,
+                      color: stars >= 1 ? Colors.red : Colors.grey,
                       iconSize: MainApp.ICON_SIZE_SMALL,
-                      onPressed: () => _setLike(1)
+                      onPressed: () => _setLike(1),
                     ),
                     IconButton(
                       icon: const Icon(CupertinoIcons.star_fill),
-                      color: (Settings.getStars(currentSong) ?? 0) >= 2 ? Colors.orange : Colors.grey,
+                      color: stars >= 2 ? Colors.orange : Colors.grey,
                       iconSize: MainApp.ICON_SIZE_SMALL,
-                      onPressed: () => _setLike(2)
+                      onPressed: () => _setLike(2),
                     ),
                     IconButton(
                       icon: const Icon(CupertinoIcons.star_fill),
-                      color: (Settings.getStars(currentSong) ?? 0) >= 3 ? Colors.yellow : Colors.grey,
+                      color: stars >= 3 ? Colors.yellow : Colors.grey,
                       iconSize: MainApp.ICON_SIZE_SMALL,
-                      onPressed: () => _setLike(3)
+                      onPressed: () => _setLike(3),
                     ),
                     IconButton(
                       icon: const Icon(CupertinoIcons.star_fill),
-                      color: (Settings.getStars(currentSong) ?? 0) >= 4 ? Colors.cyan : Colors.grey,
+                      color: stars >= 4 ? Colors.cyan : Colors.grey,
                       iconSize: MainApp.ICON_SIZE_SMALL,
-                      onPressed: () => _setLike(4)
+                      onPressed: () => _setLike(4),
                     ),
                     IconButton(
                       icon: const Icon(CupertinoIcons.star_fill),
-                      color: (Settings.getStars(currentSong) ?? 0) >= 5 ? Colors.green : Colors.grey,
+                      color: stars >= 5 ? Colors.green : Colors.grey,
                       iconSize: MainApp.ICON_SIZE_SMALL,
-                      onPressed: () => _setLike(5)
-                    )
-                  ]
-                )
-              ]
-            )
-          )
+                      onPressed: () => _setLike(5),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
         );
-      })
+      }),
     );
   }
 }
