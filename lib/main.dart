@@ -113,12 +113,17 @@ class _MainAppState extends State<MainApp> {
         final stars = Settings.instance.getStars(currentSong) ?? 0;
         return Scaffold(
           appBar: AppBar(
+            centerTitle: true,
             title: const Text("Tommy Player"),
             actions: [
               IconButton(
                 icon: const Icon(CupertinoIcons.gear_big),
                 onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => SettingsWidget()))
-              )
+              ),
+              IconButton(
+                icon: const Icon(CupertinoIcons.info_circle),
+                onPressed: () => ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(Settings.instance.getVersion()))),
+              ),
             ],
           ),
           body: Center(
