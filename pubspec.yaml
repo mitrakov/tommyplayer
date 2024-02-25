@@ -1,28 +1,28 @@
-# built with Flutter 3.7.12, CocoaPods 1.11.3
+# built with Flutter 3.16.9, CocoaPods 1.14.3
 name: tommyplayer
 description: Tommy's Player
 
-version: 23.8.27+11
+version: 24.2.25+12
 
 environment:
-  sdk: ">=2.19.6 <3.0.0"
+  sdk: '>=3.2.6 <4.0.0'
 
 dependencies:
   flutter:
     sdk: flutter
-  just_audio: 0.9.34                    # audio player
-  just_audio_background: 0.0.1-beta.10  # background playback support
-  http: 0.13.6                          # http support
-  html: 0.15.3                          # html support
-  uuid: 3.0.7                           # uuid support
+  just_audio: 0.9.36                    # audio player
+  just_audio_background: 0.0.1-beta.11  # background playback support
+  http: 1.2.0                           # http support (1.2.1 is incompatible with sdk 3.2.6)
+  html: 0.15.4                          # html support
+  uuid: 4.3.3                           # uuid support
   scoped_model: 2.0.0                   # simple state management
-  cupertino_icons: 1.0.5                # extra icons
-  shared_preferences: 2.2.0             # key-value storage
+  cupertino_icons: 1.0.6                # extra icons
+  shared_preferences: 2.2.2             # key-value storage
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: 2.0.1                  # linter from `analysis_options.yaml`
+  flutter_lints: 3.0.1                  # linter from `analysis_options.yaml`
 
 flutter:
   uses-material-design: true            # Material Icons font
