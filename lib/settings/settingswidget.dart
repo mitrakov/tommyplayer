@@ -11,7 +11,7 @@ class SettingsWidget extends StatelessWidget {
       appBar: AppBar(title: const Text("Tommy Player")),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
-        child: ListView(
+        child: Column(
           children: [
             Row(
               children: [

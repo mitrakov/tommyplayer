@@ -1,4 +1,5 @@
 // ignore_for_file: curly_braces_in_flow_control_structures
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Settings {
@@ -9,9 +10,11 @@ class Settings {
   static Settings get instance => _instance;
 
   SharedPreferences? _storage;
+  PackageInfo? _info;
 
   Future<void> init() async {
     _storage ??= await SharedPreferences.getInstance();
+    _info ??= await PackageInfo.fromPlatform();
   }
 
   String getServerUri() {
@@ -22,6 +25,11 @@ class Settings {
   int? getStars(String song) {
     _check();
     return _storage!.getInt(song);
+  }
+
+  String getVersion() {
+    _check();
+    return "${_info!.appName} v${_info!.version} build ${_info!.buildNumber}";
   }
 
   Future<bool> setServerUri(String uri) {
@@ -35,6 +43,6 @@ class Settings {
   }
 
   void _check() {
-    if (_storage == null) throw Exception("Call Settings.init() in main app widget");
+    if (_storage == null || _info == null) throw Exception("Call Settings.init() in main app widget");
   }
 }
