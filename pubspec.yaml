@@ -1,8 +1,8 @@
 # built with Flutter 3.16.9, CocoaPods 1.14.3
 name: tommyplayer
-description: Tommy's Player
+description: Tommy Player
 
-version: 24.2.25+13
+version: 24.3.3+14
 
 environment:
   sdk: '>=3.2.6 <4.0.0'
@@ -10,8 +10,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  just_audio: 0.9.36                    # audio player
-  just_audio_background: 0.0.1-beta.11  # background playback support
+  just_audio: 0.9.36                    # audio player (0.9.34 is stable, 0.9.36 is possibly unstable)
+  just_audio_background: 0.0.1-beta.10  # background playback support (beta.10 is stable, beta.11 is possibly unstable)
   http: 1.2.0                           # http support (1.2.1 is incompatible with sdk 3.2.6)
   html: 0.15.4                          # html support
   uuid: 4.3.3                           # uuid support

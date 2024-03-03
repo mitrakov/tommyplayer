@@ -10,7 +10,7 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
     <!-- Make sure to change "activity::android:name" to "com.ryanheise.audioservice.AudioServiceActivity" to have background playback -->
     <application
-        android:label="Tommy's Player"
+        android:label="Tommy Player"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher"
         android:usesCleartextTraffic="true"
