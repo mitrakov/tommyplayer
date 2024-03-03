@@ -1,4 +1,5 @@
 // ignore_for_file: curly_braces_in_flow_control_structures
+import 'package:f_logs/f_logs.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -34,7 +35,13 @@ class Settings {
 
   Future<bool> setServerUri(String uri) {
     _check();
-    return _storage!.setString(_serverUriKey, uri);
+    try {
+      Uri.parse(uri); // additional check
+      return _storage!.setString(_serverUriKey, uri);
+    } catch (e) {
+      FLog.error(text: "Cannot parse uri: $uri ($e)");
+      return Future.value(false);
+    }
   }
 
   Future<bool> setStars(String song, int stars) {

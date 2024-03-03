@@ -8,13 +8,13 @@ import 'package:tommyplayer/settings/settings.dart';
 
 /// Main model class
 class MyModel extends Model {
-  static const THROTTLING_MSEC = 500;
-  static const MAX_PLAYLIST = 400;
+  static const THROTTLING_MSEC = 1000; // performance: sleep N msec between each feed to Player instance
+  static const MAX_PLAYLIST = 400; // performance: load no more that N songs to Player instance
 
   // vals
   final Random _random = Random(DateTime.now().millisecondsSinceEpoch);
   final List<String> _playlist = [];
-  late Stream<String> _playlistStream;
+  Stream<String> _playlistStream = const Stream.empty();
 
   // getters
   /// List of file names with extension, without URL-encoding, without any URI paths. Example: ["Queen - Show must go on.mp3"]
@@ -24,15 +24,19 @@ class MyModel extends Model {
   /// Loads all data from the web server asynchronously. Should be called once.
   Future loadAll() async {
     final serverUri = Settings.instance.getServerUri();
-    final response = await http.get(Uri.parse(serverUri));
-    if (response.statusCode == 200) {
-      final htmlDoc = parse(response.body);
-      final elements = htmlDoc.getElementsByTagName("a");
-      _playlist.clear();
-      _playlist.addAll(elements.map((e) => e.text));
-      _playlist.shuffle(_random);
-      _playlistStream = Stream.periodic(const Duration(milliseconds: THROTTLING_MSEC), (i) => _playlist[i]).take(min(_playlist.length, MAX_PLAYLIST));
-      FLog.info(text: "Loaded ${_playlist.length} songs from $serverUri; playlist: $_playlist");
-    } else throw Exception("Cannot load from $serverUri");
+    try {
+      final response = await http.get(Uri.parse(serverUri));
+      if (response.statusCode == 200) {
+        final htmlDoc = parse(response.body);
+        final elements = htmlDoc.getElementsByTagName("a");
+        _playlist.clear();
+        _playlist.addAll(elements.map((e) => e.text));
+        _playlist.shuffle(_random);
+        _playlistStream = Stream.periodic(const Duration(milliseconds: THROTTLING_MSEC), (i) => _playlist[i]).take(min(_playlist.length, MAX_PLAYLIST));
+        FLog.info(text: "Loaded ${_playlist.length} songs from $serverUri; playlist: $_playlist");
+      } else FLog.error(text: "Cannot load from $serverUri, response=${response.body}");
+    } catch (e) {
+      FLog.error(text: "Cannot parse uri: $serverUri ($e)");
+    }
   }
 }

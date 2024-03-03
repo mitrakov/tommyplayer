@@ -1,6 +1,5 @@
 // ignore_for_file: avoid_print, use_key_in_widget_constructors, constant_identifier_names, curly_braces_in_flow_control_structures
 import 'dart:math';
-import 'package:f_logs/f_logs.dart';
 import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
@@ -13,6 +12,7 @@ import 'package:tommyplayer/model.dart';
 import 'package:tommyplayer/shuffle.dart';
 
 // allow insecure "http" in settings!
+// TODO: flog is probably slow. Need to check
 void main() async {
   // allow "async" in main
   WidgetsFlutterBinding.ensureInitialized();
@@ -92,7 +92,6 @@ class _MainAppState extends State<MainApp> {
       setState(() {
         currentSong = "${seq[index].tag.title}";
       });
-      FLog.info(text: "Playing: $currentSong");
     }
   }
 
