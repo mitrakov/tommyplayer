@@ -1,3 +1,3 @@
-# Tommy Player
+# TommyPlayer
 
-Tommy Player for iOS, Android and MacOS
+TommyPlayer for iOS, Android and MacOS
