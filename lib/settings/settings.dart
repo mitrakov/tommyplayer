@@ -20,7 +20,7 @@ class Settings {
 
   String getServerUri() {
     _check();
-    return _storage!.getString(_serverUriKey) ?? "http://mitrakoff.com:2000/music";
+    return _storage!.getString(_serverUriKey) ?? "http://mitrakoff.com/music";
   }
 
   int? getStars(String song) {
