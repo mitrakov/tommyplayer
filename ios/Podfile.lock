@@ -54,16 +54,16 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/sqflite/ios"
 
 SPEC CHECKSUMS:
-  audio_service: f509d65da41b9521a61f1c404dd58651f265a567
-  audio_session: 4f3e461722055d21515cf3261b64c973c062f345
+  audio_service: 2023a4a1bdb2fd1443e7b00bdbdb1baa321525db
+  audio_session: 9bdd3bf46960d4322cb8c3cb6138295dcfe84eee
   Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
   FMDB: 2ce00b547f966261cd18927a3ddb07cb6f3db82a
-  just_audio: baa7252489dbcf47a4c7cc9ca663e9661c99aafa
-  package_info_plus: 115f4ad11e0698c8c1c5d8a689390df880f47e85
-  path_provider_foundation: eaf5b3e458fc0e5fbb9940fb09980e853fe058b8
-  shared_preferences_foundation: 5b919d13b803cadd15ed2dc053125c68730e5126
-  sqflite: 31f7eba61e3074736dff8807a9b41581e4f7f15a
+  just_audio: 6c031bb61297cf218b4462be616638e81c058e97
+  package_info_plus: 566e1b7a2f3900e4b0020914ad3fc051dcc95596
+  path_provider_foundation: 0f28622a447f952060798e710afcae6800d1dfa0
+  shared_preferences_foundation: 4e65c567e7877037d328829a522222c938bf308c
+  sqflite: 5b24d06a453c198c13b305ceea4b4286cc07cfe4
 
 PODFILE CHECKSUM: c4c93c5f6502fe2754f48404d3594bf779584011
 
-COCOAPODS: 1.15.2
+COCOAPODS: 1.16.2
