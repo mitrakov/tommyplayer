@@ -1,8 +1,8 @@
 // ignore_for_file: curly_braces_in_flow_control_structures
 import 'package:http/http.dart' as http;
 import 'package:html/parser.dart';
-import 'package:tommyplayer/settings/settings.dart';
 import 'package:tommyplayer/song.dart';
+import 'package:tommyplayer/settings/settings.dart';
 import 'package:tommyplayer/tommylogger.dart';
 
 class ModelNetwork {
@@ -31,13 +31,14 @@ class ModelNetwork {
 
   Future<void> loadScores() async {
     final settings = Settings.instance;
-    final uri = "${settings.getServerUri()}/${settings.getScoresFilename()}";
+    final filename = settings.getScoresFilename();
+    final uri = "${settings.getServerUri()}/$filename";
     try {
       final response = await http.get(Uri.parse(uri));
       if (response.statusCode == 200) {
         var n = 0;
         response.body.split('\n').where((s) => s.isNotEmpty).forEach((line) {
-          final lst = line.split('|');
+          final lst = line.split("|");
           try {
             final song = lst.first;
             final stars = int.parse(lst[1]);
@@ -45,7 +46,9 @@ class ModelNetwork {
             n++;
           } catch (e) { TommyLogger.logger.error("Error: cannot handle line $n from scores: $lst, ($e)", 1000); }
         });
-        TommyLogger.logger.info("Successfully loaded $n scores from ${settings.getScoresFilename()}", 1000);
+        TommyLogger.logger.info("Successfully loaded $n scores from $filename", 1000);
+      } else if (response.statusCode == 404) {
+        TommyLogger.logger.warn("File '$filename' is not found on your server.\nUpload this file to music directory to keep scores!", 2000);
       } else throw Exception("Error: status=${response.statusCode}; response=${response.body}");
     } catch (e) {
       TommyLogger.logger.error("Error loadScores(): $uri ($e)", 3000);
@@ -57,7 +60,7 @@ class ModelNetwork {
     final uri = "${settings.getServerUri()}/upload";
     final filename = settings.getScoresFilename();
     try {
-      final request = http.MultipartRequest('POST', Uri.parse(uri));
+      final request = http.MultipartRequest("POST", Uri.parse(uri));
       request.files.add(await http.MultipartFile.fromPath("files", path, filename: filename));
       final response = await http.Response.fromStream(await request.send());
       if (response.statusCode == 200) {

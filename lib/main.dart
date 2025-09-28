@@ -4,9 +4,10 @@ import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:just_audio_background/just_audio_background.dart';
+import 'package:uuid/uuid.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:scoped_model/scoped_model.dart';
 import 'package:tommyplayer/tommylogger.dart';
-import 'package:uuid/uuid.dart';
 import 'package:tommyplayer/settings/settings.dart';
 import 'package:tommyplayer/settings/settingswidget.dart';
 import 'package:tommyplayer/model.dart';
@@ -42,8 +43,6 @@ class _MainAppState extends State<MainApp> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      TommyLogger.logger.info("INIT start", 1000);
-
       // init background playback
       await JustAudioBackground.init(
         androidNotificationChannelId: 'com.mitrakov.self.player.channel',
@@ -102,6 +101,19 @@ class _MainAppState extends State<MainApp> {
     setState(() {}); // to redraw the stars
   }
 
+  /// Calls ShareWith dialog to upload a "!scores.txt" file
+  void _shareScoreFile() async {
+    final fileName = Settings.instance.getScoresFilename();
+    try {
+      final filepath = await widget.model.writeScoreToTempFile();
+      if (filepath != null) {
+        await Share.shareXFiles([XFile(filepath)], subject: 'Save file "$fileName"?');
+      }
+    } catch (e) {
+      TommyLogger.logger.error("Error sharing file $fileName: $e", 3000);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final player = widget.player;
@@ -110,7 +122,7 @@ class _MainAppState extends State<MainApp> {
       theme: ThemeData(primarySwatch: Colors.purple),
       home: ScopedModelDescendant<MyModel>(builder: (context, child, model) {
         final stars = Settings.instance.getStars(currentSong);
-        TommyLogger.logger.init(context, logLevel: LogLevel.info);
+        TommyLogger.logger.init(context);
         return Scaffold(
           appBar: AppBar(
             centerTitle: true,
@@ -122,7 +134,11 @@ class _MainAppState extends State<MainApp> {
               ),
               IconButton(
                 icon: const Icon(CupertinoIcons.info_circle),
-                onPressed: () => ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(Settings.instance.getVersion()))),
+                onPressed: () => TommyLogger.logger.info(Settings.instance.getVersion(), 2000),
+              ),
+              IconButton(
+                icon: const Icon(CupertinoIcons.share_up),
+                onPressed: _shareScoreFile,
               ),
             ],
           ),
@@ -163,7 +179,7 @@ class _MainAppState extends State<MainApp> {
                   children: [
                     IconButton(
                       icon: const Icon(CupertinoIcons.star_fill),
-                      color: stars >= 1 ? Colors.red : Colors.grey,
+                      color: stars >= 1 ? Colors.orange : Colors.grey,
                       iconSize: MainApp.ICON_SIZE_SMALL,
                       onPressed: () => _setLike(1),
                     ),
@@ -175,19 +191,19 @@ class _MainAppState extends State<MainApp> {
                     ),
                     IconButton(
                       icon: const Icon(CupertinoIcons.star_fill),
-                      color: stars >= 3 ? Colors.yellow : Colors.grey,
+                      color: stars >= 3 ? Colors.orange : Colors.grey,
                       iconSize: MainApp.ICON_SIZE_SMALL,
                       onPressed: () => _setLike(3),
                     ),
                     IconButton(
                       icon: const Icon(CupertinoIcons.star_fill),
-                      color: stars >= 4 ? Colors.cyan : Colors.grey,
+                      color: stars >= 4 ? Colors.orange : Colors.grey,
                       iconSize: MainApp.ICON_SIZE_SMALL,
                       onPressed: () => _setLike(4),
                     ),
                     IconButton(
                       icon: const Icon(CupertinoIcons.star_fill),
-                      color: stars >= 5 ? Colors.green : Colors.grey,
+                      color: stars >= 5 ? Colors.orange : Colors.grey,
                       iconSize: MainApp.ICON_SIZE_SMALL,
                       onPressed: () => _setLike(5),
                     ),
