@@ -1,11 +1,11 @@
 // ignore_for_file: avoid_print, use_key_in_widget_constructors, constant_identifier_names, curly_braces_in_flow_control_structures
 import 'dart:math';
-import 'package:f_logs/f_logs.dart';
 import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:just_audio_background/just_audio_background.dart';
 import 'package:scoped_model/scoped_model.dart';
+import 'package:tommyplayer/tommylogger.dart';
 import 'package:uuid/uuid.dart';
 import 'package:tommyplayer/settings/settings.dart';
 import 'package:tommyplayer/settings/settingswidget.dart';
@@ -44,7 +44,7 @@ void main() async {
   // async loading
   final random = Random(DateTime.now().millisecondsSinceEpoch);
   model.playlistStream.listen((song) {
-    FLog.debug(text: "Song: $song");
+    TommyLogger.logger.debug("Song: $song", 1000);
     final r = random.nextDouble() * 5;                     // uniformly distributed: [0..5)
     final like = song.score == 0 ? 99 : song.score;        // all "unknown" songs will be given 99 to be always included
     if (r <= like) {
@@ -111,6 +111,7 @@ class _MainAppState extends State<MainApp> {
       theme: ThemeData(primarySwatch: Colors.purple),
       home: ScopedModelDescendant<MyModel>(builder: (context, child, model) {
         final stars = Settings.instance.getStars(currentSong);
+        TommyLogger.logger.init(context, LogLevel.info);
         return Scaffold(
           appBar: AppBar(
             centerTitle: true,

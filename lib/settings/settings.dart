@@ -1,7 +1,7 @@
 // ignore_for_file: curly_braces_in_flow_control_structures
-import 'package:f_logs/f_logs.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:tommyplayer/tommylogger.dart';
 
 class Settings {
   static const String _serverUriKey = "_SERVER_URI";
@@ -50,7 +50,7 @@ class Settings {
       Uri.parse(uri); // additional check
       return _storage!.setString(_serverUriKey, uri);
     } catch (e) {
-      FLog.error(text: "Cannot parse uri: $uri ($e)");
+      TommyLogger.logger.error("Cannot parse uri: $uri ($e)", 3000);
       return Future.value(false);
     }
   }
@@ -61,6 +61,6 @@ class Settings {
   }
 
   void _check() {
-    if (_storage == null || _info == null) throw Exception("Call Settings.init() in main app widget");
+    if (_storage == null || _info == null) throw Exception("ERROR: call Settings.instance.init() in main app widget");
   }
 }

@@ -1,9 +1,9 @@
 // ignore_for_file: curly_braces_in_flow_control_structures
 import 'package:http/http.dart' as http;
 import 'package:html/parser.dart';
-import 'package:f_logs/f_logs.dart';
 import 'package:tommyplayer/settings/settings.dart';
 import 'package:tommyplayer/song.dart';
+import 'package:tommyplayer/tommylogger.dart';
 
 class ModelNetwork {
   Future<List<Song>> loadSongs() async {
@@ -20,11 +20,11 @@ class ModelNetwork {
           final score = settings.getStars(name);
           return Song(uri, e.text, score);
         }).toList();
-        FLog.info(text: "Loaded ${list.length} songs from $serverUri; example: ${list.firstOrNull}");
+        TommyLogger.logger.info("Loaded ${list.length} songs from $serverUri; example: ${list.firstOrNull}", 1000);
         return list;
       } else throw Exception("Error: status=${response.statusCode}; response=${response.body}");
     } catch (e) {
-      FLog.error(text: "Error loadAll(): $serverUri ($e)");
+      TommyLogger.logger.error("Error loadAll(): $serverUri ($e)", 3000);
       return List.empty();
     }
   }
@@ -43,12 +43,12 @@ class ModelNetwork {
             final stars = int.parse(lst[1]);
             settings.setStars(song, stars);
             n++;
-          } catch (e) { FLog.error(text: "Error: cannot handle line $n from scores: $lst, ($e)"); }
+          } catch (e) { TommyLogger.logger.error("Error: cannot handle line $n from scores: $lst, ($e)", 1000); }
         });
-        FLog.info(text: "Successfully loaded $n scores from ${settings.getScoresFilename()}");
+        TommyLogger.logger.info("Successfully loaded $n scores from ${settings.getScoresFilename()}", 1000);
       } else throw Exception("Error: status=${response.statusCode}; response=${response.body}");
     } catch (e) {
-      FLog.error(text: "Error loadScores(): $uri ($e)");
+      TommyLogger.logger.error("Error loadScores(): $uri ($e)", 3000);
     }
   }
 
@@ -61,10 +61,10 @@ class ModelNetwork {
       request.files.add(await http.MultipartFile.fromPath("files", path, filename: filename));
       final response = await http.Response.fromStream(await request.send());
       if (response.statusCode == 200) {
-        FLog.info(text: "Upload OK to $uri");
+        TommyLogger.logger.info("Upload OK to $uri", 1000);
       } else throw Exception("Error: $response");
     } catch (e) {
-      FLog.error(text: "Error uploadFile($path): uri=$uri, filename=$filename ($e)");
+      TommyLogger.logger.error("Error uploadFile($path): uri=$uri, filename=$filename ($e)", 3000);
     }
   }
 

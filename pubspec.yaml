@@ -19,7 +19,6 @@ dependencies:
   cupertino_icons: 1.0.6                # extra icons
   shared_preferences: 2.2.2             # key-value storage
   package_info_plus: 5.0.1              # build info
-  f_logs: 2.0.1                         # logger
 
 dev_dependencies:
   flutter_test:
