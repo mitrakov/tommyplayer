@@ -1,10 +1,11 @@
-// ignore_for_file: curly_braces_in_flow_control_structures
+import 'dart:io';
 import 'dart:math';
 import 'package:f_logs/f_logs.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:scoped_model/scoped_model.dart';
-import 'package:http/http.dart' as http;
-import 'package:html/parser.dart';
+import 'package:tommyplayer/model_network.dart';
 import 'package:tommyplayer/settings/settings.dart';
+import 'package:tommyplayer/song.dart';
 
 /// Main model class
 class MyModel extends Model {
@@ -12,31 +13,31 @@ class MyModel extends Model {
   static const MAX_PLAYLIST = 400; // performance: load no more that N songs to Player instance
 
   // vals
+  final ModelNetwork net = ModelNetwork();
   final Random _random = Random(DateTime.now().millisecondsSinceEpoch);
-  final List<String> _playlist = [];
-  Stream<String> _playlistStream = const Stream.empty();
+  final List<Song> _playlist = [];
+  late final Stream<Song> playlistStream;
 
-  // getters
-  /// List of file names with extension, without URL-encoding, without any URI paths. Example: ["Queen - Show must go on.mp3"]
-  Stream<String> get playlistStream => _playlistStream;
+  /// Loads songs and scores from the server. Should be called once
+  Future<void> loadAll() async {
+    await net.loadScores();
+    final list = await net.loadSongs();
+    list.shuffle(_random);
+    final sublist = list.take(MAX_PLAYLIST).toList();
+    _playlist..clear()..addAll(sublist);
+    playlistStream = Stream.periodic(const Duration(milliseconds: THROTTLING_MSEC), (i) => _playlist[i]).take(_playlist.length);
+    FLog.info(text: "Loaded ${list.length} songs; used ${_playlist.length} of them");
+  }
 
-  // functions
-  /// Loads all data from the web server asynchronously. Should be called once.
-  Future loadAll() async {
-    final serverUri = Settings.instance.getServerUri();
+  Future writeToTempFileAsync(String content) async {
+    final settings = Settings.instance;
     try {
-      final response = await http.get(Uri.parse(serverUri));
-      if (response.statusCode == 200) {
-        final htmlDoc = parse(response.body);
-        final elements = htmlDoc.getElementsByTagName("a");
-        _playlist.clear();
-        _playlist.addAll(elements.map((e) => e.text));
-        _playlist.shuffle(_random);
-        _playlistStream = Stream.periodic(const Duration(milliseconds: THROTTLING_MSEC), (i) => _playlist[i]).take(min(_playlist.length, MAX_PLAYLIST));
-        FLog.info(text: "Loaded ${_playlist.length} songs from $serverUri; playlist: $_playlist");
-      } else FLog.error(text: "Cannot load from $serverUri, response=${response.body}");
+      final filePath = '${(await getTemporaryDirectory()).path}/${settings.getScoresFilename()}';
+      final file = File(filePath);
+      final content = settings.getAppKeys().map((key) => "$key|${settings.getStars(key)}").join("\n");
+      file.writeAsString(content); // TODO await?
     } catch (e) {
-      FLog.error(text: "Cannot parse uri: $serverUri ($e)");
+      FLog.error(text: "Error writing ${settings.getScoresFilename()} file: $e)");
     }
   }
 }

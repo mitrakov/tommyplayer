@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class Settings {
   static const String _serverUriKey = "_SERVER_URI";
+  static const String _scoresFileKey = "_SERVER_SCORES_FILE";
 
   Settings._();
   static final Settings _instance = Settings._();
@@ -20,12 +21,22 @@ class Settings {
 
   String getServerUri() {
     _check();
-    return _storage!.getString(_serverUriKey) ?? "http://mitrakoff.com/music";
+    return _storage!.getString(_serverUriKey) ?? "http://mitrakoff.ru";
   }
 
-  int? getStars(String song) {
+  String getScoresFilename() {
     _check();
-    return _storage!.getInt(song);
+    return _storage!.getString(_scoresFileKey) ?? "!scores.txt";
+  }
+
+  List<String> getAppKeys() {
+    _check();
+    return _storage!.getKeys().where((key) => !key.startsWith("_")).toList();
+  }
+
+  int getStars(String song) {
+    _check();
+    return _storage!.getInt(song) ?? 0;
   }
 
   String getVersion() {

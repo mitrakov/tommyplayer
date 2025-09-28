@@ -1,5 +1,6 @@
 // ignore_for_file: avoid_print, use_key_in_widget_constructors, constant_identifier_names, curly_braces_in_flow_control_structures
 import 'dart:math';
+import 'package:f_logs/f_logs.dart';
 import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
@@ -43,11 +44,12 @@ void main() async {
   // async loading
   final random = Random(DateTime.now().millisecondsSinceEpoch);
   model.playlistStream.listen((song) {
+    FLog.debug(text: "Song: $song");
     final r = random.nextDouble() * 5;                     // uniformly distributed: [0..5)
-    final stars = Settings.instance.getStars(song) ?? 999; // 1,2,3,4,5 or 999 (default is 999, in order to include a song to the playlist and ask the user to rate it)
-    final like = stars == 1 ? 0.2 : stars;                 // decrease rate for shitty songs
+    final like = song.score == 0 ? 99 : song.score;        // all "unknown" songs will be given 99 to be always included
     if (r <= like) {
-      audioSource.add(AudioSource.uri(Uri.parse(Uri.encodeFull("${Settings.instance.getServerUri()}/$song")), tag: MediaItem(id: uuid.v4(), title: song)));
+      final url = "${Settings.instance.getServerUri()}/${song.url}";
+      audioSource.add(AudioSource.uri(Uri.parse(url), tag: MediaItem(id: uuid.v4(), title: song.text)));
     }
   });
 
@@ -108,7 +110,7 @@ class _MainAppState extends State<MainApp> {
       title: "Tommy Player",
       theme: ThemeData(primarySwatch: Colors.purple),
       home: ScopedModelDescendant<MyModel>(builder: (context, child, model) {
-        final stars = Settings.instance.getStars(currentSong) ?? 0;
+        final stars = Settings.instance.getStars(currentSong);
         return Scaffold(
           appBar: AppBar(
             centerTitle: true,
