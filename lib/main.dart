@@ -13,48 +13,12 @@ import 'package:tommyplayer/model.dart';
 import 'package:tommyplayer/shuffle.dart';
 
 // allow insecure "http" in settings!
-// TODO: flog is probably slow. Need to check
 void main() async {
-  // allow "async" in main
-  WidgetsFlutterBinding.ensureInitialized();
+  WidgetsFlutterBinding.ensureInitialized(); // allow "async" in main
   await Settings.instance.init();
-
-  // init background playback
-  await JustAudioBackground.init(
-    androidNotificationChannelId: 'com.mitrakov.self.player.channel',
-    androidNotificationChannelName: 'Audio playback',
-    androidNotificationOngoing: true,
-  );
-
-  // create all primary objects
-  const uuid = Uuid();
   final model = MyModel();
-  final player = AudioPlayer();
 
-  // init model
-  await model.loadAll();
-
-  // init player
-  // set "useLazyPreparation" to "true" to load as late as possible
-  // set "children" to [] to avoid loading tracks all-at-once!
-  final audioSource = ConcatenatingAudioSource(useLazyPreparation: true, children: [], shuffleOrder: NoShuffleOrder());
-  player.setAudioSource(audioSource, preload: false); // set preload to "false" to delay immediate loading
-  player.setLoopMode(LoopMode.all);
-
-  // async loading
-  final random = Random(DateTime.now().millisecondsSinceEpoch);
-  model.playlistStream.listen((song) {
-    TommyLogger.logger.debug("Song: $song", 1000);
-    final r = random.nextDouble() * 5;                     // uniformly distributed: [0..5)
-    final like = song.score == 0 ? 99 : song.score;        // all "unknown" songs will be given 99 to be always included
-    if (r <= like) {
-      final url = "${Settings.instance.getServerUri()}/${song.url}";
-      audioSource.add(AudioSource.uri(Uri.parse(url), tag: MediaItem(id: uuid.v4(), title: song.text)));
-    }
-  });
-
-  // run!
-  runApp(ScopedModel(model: model, child: MainApp(player)));
+  runApp(ScopedModel(model: model, child: MainApp(model)));
 }
 
 /// Main app widget
@@ -62,9 +26,10 @@ class MainApp extends StatefulWidget {
   static const double MARGIN = 25; // margin between icons
   static const double ICON_SIZE = 65;
   static const double ICON_SIZE_SMALL = 30;
-  final AudioPlayer player;
+  final player = AudioPlayer();
+  final MyModel model;
 
-  const MainApp(this.player);
+  MainApp(this.model);
 
   @override
   State<MainApp> createState() => _MainAppState();
@@ -75,9 +40,43 @@ class _MainAppState extends State<MainApp> {
 
   @override
   void initState() {
-    // subscribe on the playbackEvent stream to get a new song name once playback finished
     super.initState();
-    widget.player.playbackEventStream.listen((e) => _updateCurrentSong());
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      TommyLogger.logger.info("INIT start", 1000);
+
+      // init background playback
+      await JustAudioBackground.init(
+        androidNotificationChannelId: 'com.mitrakov.self.player.channel',
+        androidNotificationChannelName: 'Audio playback',
+        androidNotificationOngoing: true,
+      );
+
+      // init model
+      await widget.model.loadAll();
+
+      // player setup
+      // set "useLazyPreparation" to "true" to load as late as possible
+      // set "children" to [] to avoid loading tracks all-at-once!
+      final audioSource = ConcatenatingAudioSource(useLazyPreparation: true, children: [], shuffleOrder: NoShuffleOrder());
+      widget.player.setAudioSource(audioSource, preload: false); // set preload to "false" to delay immediate loading
+      widget.player.setLoopMode(LoopMode.all);
+      widget.player.playbackEventStream.listen((e) => _updateCurrentSong()); // to get a new song name once playback finished
+
+      // async loading
+      final random = Random(DateTime.now().millisecondsSinceEpoch);
+      const uuid = Uuid();
+      widget.model.playlistStream.listen((song) {
+        TommyLogger.logger.debug("Song: $song", 700);
+        final r = random.nextDouble() * 5;                     // uniformly distributed: [0..5)
+        final like = song.score == 0 ? 99 : song.score;        // all "unknown" songs will be given 99 to be always included
+        if (r <= like) {
+          final url = "${Settings.instance.getServerUri()}/${song.url}";
+          audioSource.add(AudioSource.uri(Uri.parse(url), tag: MediaItem(id: uuid.v4(), title: song.text)));
+        }
+      });
+
+      TommyLogger.logger.info("TommyPlayer INIT done. Enjoy!", 1000);
+    });
   }
 
   /// Callback for PLAY and PAUSE buttons
@@ -111,7 +110,7 @@ class _MainAppState extends State<MainApp> {
       theme: ThemeData(primarySwatch: Colors.purple),
       home: ScopedModelDescendant<MyModel>(builder: (context, child, model) {
         final stars = Settings.instance.getStars(currentSong);
-        TommyLogger.logger.init(context, LogLevel.info);
+        TommyLogger.logger.init(context, logLevel: LogLevel.info);
         return Scaffold(
           appBar: AppBar(
             centerTitle: true,

@@ -1,4 +1,4 @@
-// ignore_for_file: avoid_print
+// ignore_for_file: avoid_print, curly_braces_in_flow_control_structures
 import 'package:flutter/material.dart';
 
 class TommyLogger {
@@ -6,12 +6,14 @@ class TommyLogger {
   static final TommyLogger _instance = TommyLogger._();
   static TommyLogger get logger => _instance;
 
-  BuildContext? _context; // not "late final"
+  BuildContext? _context; // not "late final"!
   LogLevel _logLevel = LogLevel.info;
+  bool _printToStdout = true;
 
-  void init(BuildContext context, LogLevel logLevel) {
+  void init(BuildContext context, {logLevel = LogLevel.info, printToStdout = true}) {
     _context ??= context;
     _logLevel = logLevel;
+    _printToStdout = printToStdout;
   }
 
   void trace(String s, int millis) => _showMessage(s, millis, LogLevel.trace, Colors.blueGrey);
@@ -22,14 +24,14 @@ class TommyLogger {
   void fatal(String s, int millis) => _showMessage(s, millis, LogLevel.fatal, Colors.red);
 
   void _showMessage(String s, int millis, LogLevel logLevel, Color colour) {
-    if (_context != null) {
-      if (logLevel <= _logLevel) {
+    if (logLevel <= _logLevel) {
+      if (_context != null) {
         final bar = SnackBar(content: Text(s), duration: Duration(milliseconds: millis), backgroundColor: colour);
         ScaffoldMessenger.of(_context!).showSnackBar(bar);
-      }
-    } else {
-      print("[WARNING]: if you see this message, TommyLogger is not initialized properly. Call TommyLogger.instance.init(context) inside 'Scaffold' widget");
-      print("$s");
+      } else print("[!]: if you see this message, TommyLogger is not initialized properly. Call TommyLogger.instance.init(context) inside 'Scaffold' widget");
+
+      if (_printToStdout)
+        print("${DateTime.now()} [${_logLevel.name.toUpperCase()}]: $s");
     }
   }
 }
@@ -52,8 +54,5 @@ enum LogLevel implements Comparable<LogLevel> {
   @override
   int compareTo(LogLevel other) => priority - other.priority;
 
-  bool operator > (LogLevel other) => compareTo(other) > 0;
-  bool operator < (LogLevel other) => compareTo(other) < 0;
-  bool operator >=(LogLevel other) => compareTo(other) >= 0;
   bool operator <=(LogLevel other) => compareTo(other) <= 0;
 }
