@@ -2,7 +2,7 @@
 name: tommyplayer
 description: Tommy Player
 
-version: 1.5.0+16
+version: 1.5.1+17
 
 environment:
   sdk: '>=3.2.6 <4.0.0'

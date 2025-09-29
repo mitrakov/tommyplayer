@@ -9,8 +9,7 @@ import 'package:tommyplayer/tommylogger.dart';
 
 /// Main model class
 class MyModel extends Model {
-  static const THROTTLING_MSEC = 1000; // performance: sleep N msec between each feed to Player instance
-  static const MAX_PLAYLIST = 100; // performance: load no more that N songs to Player instance
+  static const THROTTLING_MSEC = 1500; // performance: sleep N msec between each feed to Player instance (min 1000!)
 
   // vals
   final ModelNetwork net = ModelNetwork();
@@ -22,11 +21,14 @@ class MyModel extends Model {
   Future<void> loadAll() async {
     await net.loadScores();
     final list = await net.loadSongs();
+    final playAll = Settings.instance.getMinStarsToPlay() == 0;
+    if (playAll && list.any((song) => song.score == 0)) {
+      list.removeWhere((song) => song.score > 0); // play only unrated songs
+    }
     list.shuffle(_random);
-    final sublist = list.take(MAX_PLAYLIST).toList();
-    _playlist..clear()..addAll(sublist);
+    _playlist..clear()..addAll(list);
     playlistStream = Stream.periodic(const Duration(milliseconds: THROTTLING_MSEC), (i) => _playlist[i]).take(_playlist.length);
-    TommyLogger.logger.info("Loaded ${list.length} songs; used ${_playlist.length} of them", 1000);
+    TommyLogger.logger.info("Will be added ${_playlist.length} songs", 1000);
   }
 
   Future<String?> writeScoreToTempFile() async {

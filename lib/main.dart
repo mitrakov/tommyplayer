@@ -24,9 +24,6 @@ void main() async {
 
 /// Main app widget
 class MainApp extends StatefulWidget {
-  static const double MARGIN = 25; // margin between icons
-  static const double ICON_SIZE = 65;
-  static const double ICON_SIZE_SMALL = 30;
   final player = AudioPlayer();
   final MyModel model;
 
@@ -37,7 +34,13 @@ class MainApp extends StatefulWidget {
 }
 
 class _MainAppState extends State<MainApp> {
+  static const double MARGIN = 25; // margin between icons
+  static const double ICON_SIZE = 65;
+  static const double ICON_SIZE_SMALL = 30;
+  static const int MAX_PLAYLIST = 120;
+
   String currentSong = "";
+  int loadedSongsTotal = 0;
 
   @override
   void initState() {
@@ -65,12 +68,14 @@ class _MainAppState extends State<MainApp> {
       final random = Random(DateTime.now().millisecondsSinceEpoch);
       const uuid = Uuid();
       widget.model.playlistStream.listen((song) {
-        TommyLogger.logger.debug("Song: $song", 700);
-        final r = random.nextDouble() * 5;                     // uniformly distributed: [0..5)
-        final like = song.score == 0 ? 99 : song.score;        // all "unknown" songs will be given 99 to be always included
-        if (r <= like) {
-          final url = "${Settings.instance.getServerUri()}/${song.url}";
-          audioSource.add(AudioSource.uri(Uri.parse(url), tag: MediaItem(id: uuid.v4(), title: song.text)));
+        if (loadedSongsTotal < MAX_PLAYLIST) {
+          final threshold = song.score == 0 ? 1.0 : (song.score / 5.0);
+          TommyLogger.logger.debug("threshold: $threshold; song: $song", 1000);
+          if (random.nextDouble() <= threshold) {
+            final url = "${Settings.instance.getServerUri()}/${song.url}";
+            audioSource.add(AudioSource.uri(Uri.parse(url), tag: MediaItem(id: uuid.v4(), title: song.text)));
+            loadedSongsTotal++;
+          }
         }
       });
 
@@ -147,64 +152,64 @@ class _MainAppState extends State<MainApp> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(currentSong, style: const TextStyle(fontSize: 19)),
-                const SizedBox(height: MainApp.MARGIN),
+                const SizedBox(height: MARGIN),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     IconButton(
                       icon: const Icon(CupertinoIcons.arrowshape_turn_up_left_circle),
                       color: Colors.blue,
-                      iconSize: MainApp.ICON_SIZE,
+                      iconSize: ICON_SIZE,
                       onPressed: player.seekToPrevious,
                     ),
-                    const SizedBox(width: MainApp.MARGIN),
+                    const SizedBox(width: MARGIN),
                     IconButton(
                       icon: Icon(player.playing ? Icons.pause_circle_outlined : Icons.play_circle_outlined),
                       color: player.playing ? Colors.deepOrange : Colors.green,
-                      iconSize: MainApp.ICON_SIZE,
+                      iconSize: ICON_SIZE,
                       onPressed: _onPlayButtonClick,
                     ),
-                    const SizedBox(width: MainApp.MARGIN),
+                    const SizedBox(width: MARGIN),
                     IconButton(
                       icon: const Icon(CupertinoIcons.arrowshape_turn_up_right_circle),
                       color: Colors.blue,
-                      iconSize: MainApp.ICON_SIZE,
+                      iconSize: ICON_SIZE,
                       onPressed: player.seekToNext,
                     )
                   ]
                 ),
-                const SizedBox(height: MainApp.MARGIN),
+                const SizedBox(height: MARGIN),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     IconButton(
                       icon: const Icon(CupertinoIcons.star_fill),
-                      color: stars >= 1 ? Colors.orange : Colors.grey,
-                      iconSize: MainApp.ICON_SIZE_SMALL,
+                      color: stars >= 1 ? Colors.orange : Colors.grey[400],
+                      iconSize: ICON_SIZE_SMALL,
                       onPressed: () => _setLike(1),
                     ),
                     IconButton(
                       icon: const Icon(CupertinoIcons.star_fill),
-                      color: stars >= 2 ? Colors.orange : Colors.grey,
-                      iconSize: MainApp.ICON_SIZE_SMALL,
+                      color: stars >= 2 ? Colors.orange : Colors.grey[400],
+                      iconSize: ICON_SIZE_SMALL,
                       onPressed: () => _setLike(2),
                     ),
                     IconButton(
                       icon: const Icon(CupertinoIcons.star_fill),
-                      color: stars >= 3 ? Colors.orange : Colors.grey,
-                      iconSize: MainApp.ICON_SIZE_SMALL,
+                      color: stars >= 3 ? Colors.orange : Colors.grey[400],
+                      iconSize: ICON_SIZE_SMALL,
                       onPressed: () => _setLike(3),
                     ),
                     IconButton(
                       icon: const Icon(CupertinoIcons.star_fill),
-                      color: stars >= 4 ? Colors.orange : Colors.grey,
-                      iconSize: MainApp.ICON_SIZE_SMALL,
+                      color: stars >= 4 ? Colors.orange : Colors.grey[400],
+                      iconSize: ICON_SIZE_SMALL,
                       onPressed: () => _setLike(4),
                     ),
                     IconButton(
                       icon: const Icon(CupertinoIcons.star_fill),
-                      color: stars >= 5 ? Colors.orange : Colors.grey,
-                      iconSize: MainApp.ICON_SIZE_SMALL,
+                      color: stars >= 5 ? Colors.orange : Colors.grey[400],
+                      iconSize: ICON_SIZE_SMALL,
                       onPressed: () => _setLike(5),
                     ),
                   ],

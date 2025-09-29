@@ -4,8 +4,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tommyplayer/tommylogger.dart';
 
 class Settings {
-  static const String _serverUriKey = "_SERVER_URI";
+  static const String _serverUriKey  = "_SERVER_URI";
   static const String _scoresFileKey = "_SERVER_SCORES_FILE";
+  static const String _minStarsKey   = "_MIN_STARS_TO_PLAY";
 
   Settings._();
   static final Settings _instance = Settings._();
@@ -39,6 +40,11 @@ class Settings {
     return _storage!.getInt(song) ?? 0;
   }
 
+  int getMinStarsToPlay() {
+    _check();
+    return _storage!.getInt(_minStarsKey) ?? 0; // 0 = all songs
+  }
+
   String getVersion() {
     _check();
     return "${_info!.appName} v${_info!.version} build ${_info!.buildNumber}";
@@ -57,7 +63,23 @@ class Settings {
 
   Future<bool> setStars(String song, int stars) {
     _check();
-    return _storage!.setInt(song, stars);
+    if (song.isNotEmpty)
+      return _storage!.setInt(song, stars);
+    return Future.value(false);
+  }
+
+  Future<bool> setMinStarsToPlay(int stars) {
+    _check();
+    if (0 <= stars && stars <= 5)
+      return _storage!.setInt(_minStarsKey, stars);
+    return Future.value(false);
+  }
+
+  Future<bool> setScoresFilename(String name) {
+    _check();
+    if (name.isNotEmpty)
+      return _storage!.setString(_scoresFileKey, name);
+    return Future.value(false);
   }
 
   void _check() {

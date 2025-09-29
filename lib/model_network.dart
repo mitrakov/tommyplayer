@@ -20,7 +20,7 @@ class ModelNetwork {
           final score = settings.getStars(name);
           return Song(uri, e.text, score);
         }).toList();
-        TommyLogger.logger.info("Loaded ${list.length} songs from $serverUri; example: ${list.firstOrNull?.text}", 1000);
+        TommyLogger.logger.info("Loaded ${list.length} songs from $serverUri\nFirst: ${list.firstOrNull?.text}", 1000);
         return list;
       } else throw Exception("Error: status=${response.statusCode}; response=${response.body}");
     } catch (e) {

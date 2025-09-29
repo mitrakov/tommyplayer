@@ -3,10 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:tommyplayer/settings/settings.dart';
 
 class SettingsWidget extends StatelessWidget {
-  final _serverUriCtrl = TextEditingController(text: Settings.instance.getServerUri());
+  final settings = Settings.instance;
+  final _serverUriCtrl  = TextEditingController(text: Settings.instance.getServerUri());
+  final _scoresFileCtrl = TextEditingController(text: Settings.instance.getScoresFilename());
+  final _minStarsCtrl   = TextEditingController(text: Settings.instance.getMinStarsToPlay().toString());
 
   @override
   Widget build(BuildContext context) {
+    const decor = InputDecoration(border: OutlineInputBorder());
     return Scaffold(
       appBar: AppBar(title: const Text("Tommy Player")),
       body: Padding(
@@ -14,11 +18,19 @@ class SettingsWidget extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text("Hostname or IP-address:"),
             Expanded(
-              child: TextField(controller: _serverUriCtrl, onChanged: Settings.instance.setServerUri, decoration: const InputDecoration(border: OutlineInputBorder())),
-            )
-          ]
+              child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
+                const Text("Hostname or IP-address:"),
+                TextField(controller: _serverUriCtrl, onChanged: settings.setServerUri, decoration: decor),
+                const SizedBox(height: 20),
+                const Text("Scores filename:"),
+                TextField(controller: _scoresFileCtrl, onChanged: settings.setScoresFilename, decoration: decor),
+                const SizedBox(height: 20),
+                const Text("Min stars to play 0-5 (0 = play all):"),
+                TextField(controller: _minStarsCtrl, onChanged: (s) => settings.setMinStarsToPlay(int.tryParse(s) ?? 0), decoration: decor),
+              ]),
+            ),
+          ],
         ),
       ),
     );
