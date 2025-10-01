@@ -68,7 +68,7 @@ class _MainAppState extends State<MainApp> {
       final random = Random(DateTime.now().millisecondsSinceEpoch);
       const uuid = Uuid();
       widget.model.playlistStream.listen((song) {
-        if (loadedSongsTotal < MAX_PLAYLIST) {
+        if (loadedSongsTotal < MAX_PLAYLIST) BUG HERE! 1.5 sec delay! move code to Model! { // TODO
           final threshold = song.score == 0 ? 1.0 : (song.score / 5.0);
           TommyLogger.logger.debug("threshold: $threshold; song: $song", 1000);
           if (random.nextDouble() <= threshold) {
