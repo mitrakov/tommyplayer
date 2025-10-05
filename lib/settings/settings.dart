@@ -3,6 +3,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tommyplayer/tommylogger.dart';
 
+// TODO: change to idiomatic way (see project "LasNotes" Flutter)
 class Settings {
   static const String _serverUriKey  = "_SERVER_URI";
   static const String _scoresFileKey = "_SERVER_SCORES_FILE";
@@ -22,7 +23,7 @@ class Settings {
 
   String getServerUri() {
     _check();
-    return _storage!.getString(_serverUriKey) ?? "http://mitrakoff.ru";
+    return _storage!.getString(_serverUriKey) ?? "http://mitrakoff.ru/music";
   }
 
   String getScoresFilename() {
