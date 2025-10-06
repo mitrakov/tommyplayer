@@ -20,6 +20,7 @@ dependencies:
   package_info_plus: 5.0.1              # build info
   share_plus: 7.2.2                     # share-dialog
   path_provider: 2.0.15                 # getTemporaryDirectory()
+  cupertino_icons: 1.0.6                # extra icons
 
 dev_dependencies:
   flutter_lints: 3.0.1                  # linter from `analysis_options.yaml`
