@@ -1,5 +1,4 @@
 // ignore_for_file: avoid_print, use_key_in_widget_constructors, constant_identifier_names, curly_braces_in_flow_control_structures
-import 'dart:math';
 import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
@@ -37,10 +36,8 @@ class _MainAppState extends State<MainApp> {
   static const double MARGIN = 25; // margin between icons
   static const double ICON_SIZE = 65;
   static const double ICON_SIZE_SMALL = 30;
-  static const int MAX_PLAYLIST = 120;
 
   String currentSong = "";
-  int loadedSongsTotal = 0;
 
   @override
   void initState() {
@@ -65,18 +62,11 @@ class _MainAppState extends State<MainApp> {
       widget.player.playbackEventStream.listen((e) => _updateCurrentSong()); // to get a new song name once playback finished
 
       // async loading
-      final random = Random(DateTime.now().millisecondsSinceEpoch);
       const uuid = Uuid();
+      final server = Settings.instance.getServerUri();
       widget.model.playlistStream.listen((song) {
-        if (loadedSongsTotal < MAX_PLAYLIST) BUG HERE! 1.5 sec delay! move code to Model! { // TODO
-          final threshold = song.score == 0 ? 1.0 : (song.score / 5.0);
-          TommyLogger.logger.debug("threshold: $threshold; song: $song", 1000);
-          if (random.nextDouble() <= threshold) {
-            final url = "${Settings.instance.getServerUri()}/${song.url}";
-            audioSource.add(AudioSource.uri(Uri.parse(url), tag: MediaItem(id: uuid.v4(), title: song.text)));
-            loadedSongsTotal++;
-          }
-        }
+        // "audioSource.add" is quite heady and must be throttled!
+        audioSource.add(AudioSource.uri(Uri.parse("$server/${song.url}"), tag: MediaItem(id: uuid.v4(), title: song.text)));
       });
 
       TommyLogger.logger.info("TommyPlayer INIT done. Enjoy!", 1000);

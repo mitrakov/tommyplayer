@@ -20,6 +20,7 @@ dependencies:
   shared_preferences: 2.2.2             # key-value storage
   package_info_plus: 5.0.1              # build info
   share_plus: 7.2.2                     # share-dialog
+  path_provider: 2.0.15                 # getTemporaryDirectory()
 
 dev_dependencies:
   flutter_test:

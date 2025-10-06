@@ -20,7 +20,7 @@ class ModelNetwork {
           final score = settings.getStars(name);
           return Song(uri, e.text, score);
         }).toList();
-        TommyLogger.logger.info("Loaded ${list.length} songs from $serverUri\nFirst: ${list.firstOrNull?.text}", 1000);
+        TommyLogger.logger.info("Loaded ${list.length} songs from $serverUri", 1000);
         return list;
       } else throw Exception("Error: status=${response.statusCode}; response=${response.body}");
     } catch (e) {
@@ -46,7 +46,7 @@ class ModelNetwork {
             n++;
           } catch (e) { TommyLogger.logger.error("Error: cannot handle line $n from scores: $lst, ($e)", 1000); }
         });
-        TommyLogger.logger.info("Successfully loaded $n scores from $filename", 1000);
+        TommyLogger.logger.info("Loaded $n scores from $filename", 1000);
       } else if (response.statusCode == 404) {
         TommyLogger.logger.warn("File '$filename' is not found on your server.\nUpload this file to music directory to keep scores!", 2000);
       } else throw Exception("Error: status=${response.statusCode}; response=${response.body}");
