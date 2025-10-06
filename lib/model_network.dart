@@ -7,8 +7,8 @@ import 'package:tommyplayer/tommylogger.dart';
 
 class ModelNetwork {
   Future<List<Song>> loadSongs() async {
-    final settings = Settings.instance;
-    final serverUri = settings.getServerUri();
+    final settings = Settings.local;
+    final serverUri = settings.serverUri;
     try {
       final response = await http.get(Uri.parse(serverUri));
       if (response.statusCode == 200) {
@@ -30,9 +30,9 @@ class ModelNetwork {
   }
 
   Future<void> loadScores() async {
-    final settings = Settings.instance;
-    final filename = settings.getScoresFilename();
-    final uri = "${settings.getServerUri()}/$filename";
+    final settings = Settings.local;
+    final filename = settings.scoresFilename;
+    final uri = "${settings.serverUri}/$filename";
     try {
       final response = await http.get(Uri.parse(uri));
       if (response.statusCode == 200) {
@@ -56,9 +56,9 @@ class ModelNetwork {
   }
 
   Future<void> uploadFile(String path) async {
-    final settings = Settings.instance;
-    final uri = "${settings.getServerUri()}/upload";
-    final filename = settings.getScoresFilename();
+    final settings = Settings.local;
+    final uri = "${settings.serverUri}/upload";
+    final filename = settings.scoresFilename;
     try {
       final request = http.MultipartRequest("POST", Uri.parse(uri));
       request.files.add(await http.MultipartFile.fromPath("files", path, filename: filename));

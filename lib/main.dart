@@ -15,7 +15,7 @@ import 'package:tommyplayer/shuffle.dart';
 // allow insecure "http" in settings!
 void main() async {
   WidgetsFlutterBinding.ensureInitialized(); // allow "async" in main
-  await Settings.instance.init();
+  await Settings.init();
   final model = MyModel();
 
   runApp(ScopedModel(model: model, child: MainApp(model)));
@@ -63,7 +63,7 @@ class _MainAppState extends State<MainApp> {
 
       // async loading
       const uuid = Uuid();
-      final server = Settings.instance.getServerUri();
+      final server = Settings.local.serverUri;
       widget.model.playlistStream.listen((song) {
         // "audioSource.add" is quite heady and must be throttled!
         audioSource.add(AudioSource.uri(Uri.parse("$server/${song.url}"), tag: MediaItem(id: uuid.v4(), title: song.text)));
@@ -91,14 +91,14 @@ class _MainAppState extends State<MainApp> {
   }
 
   /// Saves a user's "like" for a current song to Shared Preferences
-  void _setLike(int like) async {
-    await Settings.instance.setStars(currentSong, like);
+  void _setLike(int like) {
+    Settings.local.setStars(currentSong, like);
     setState(() {}); // to redraw the stars
   }
 
   /// Calls ShareWith dialog to upload a "!scores.txt" file
   void _shareScoreFile() async {
-    final fileName = Settings.instance.getScoresFilename();
+    final fileName = Settings.local.scoresFilename;
     try {
       final filepath = await widget.model.writeScoreToTempFile();
       if (filepath != null) {
@@ -116,7 +116,7 @@ class _MainAppState extends State<MainApp> {
       title: "Tommy Player",
       theme: ThemeData(primarySwatch: Colors.purple),
       home: ScopedModelDescendant<MyModel>(builder: (context, child, model) {
-        final stars = Settings.instance.getStars(currentSong);
+        final stars = Settings.local.getStars(currentSong);
         TommyLogger.logger.init(context);
         return Scaffold(
           appBar: AppBar(
@@ -129,7 +129,7 @@ class _MainAppState extends State<MainApp> {
               ),
               IconButton(
                 icon: const Icon(CupertinoIcons.info_circle),
-                onPressed: () => TommyLogger.logger.info(Settings.instance.getVersion(), 2000),
+                onPressed: () => TommyLogger.logger.info(Settings.local.version, 2000),
               ),
               IconButton(
                 icon: const Icon(CupertinoIcons.share_up),

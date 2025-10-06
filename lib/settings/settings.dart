@@ -3,87 +3,51 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tommyplayer/tommylogger.dart';
 
-// TODO: change to idiomatic way (see project "LasNotes" Flutter)
 class Settings {
-  static const String _serverUriKey  = "_SERVER_URI";
-  static const String _scoresFileKey = "_SERVER_SCORES_FILE";
-  static const String _minStarsKey   = "_MIN_STARS_TO_PLAY";
-
   Settings._();
   static final Settings _instance = Settings._();
-  static Settings get instance => _instance;
-
-  SharedPreferences? _storage;
-  PackageInfo? _info;
-
-  Future<void> init() async {
-    _storage ??= await SharedPreferences.getInstance();
-    _info ??= await PackageInfo.fromPlatform();
+  static SharedPreferences? _storage;
+  static PackageInfo? _info;
+  static Future<void> init() async {
+    _storage = await SharedPreferences.getInstance();
+    _info = await PackageInfo.fromPlatform();
+  }
+  static Settings get local {
+    if (_storage != null) return _instance; else throw Exception("Settings are not initialized. Call Settings.instance.init() first");
   }
 
-  String getServerUri() {
-    _check();
-    return _storage!.getString(_serverUriKey) ?? "http://mitrakoff.ru/music";
+  // _SERVER_URI
+  String get serverUri => _storage!.getString("_SERVER_URI") ?? "http://mitrakoff.ru/music";
+  set serverUri(String uri) {
+    if (Uri.tryParse(uri) != null)
+      _storage!.setString("_SERVER_URI", uri);
+    else TommyLogger.logger.error("Cannot parse uri: $uri", 3000);
   }
 
-  String getScoresFilename() {
-    _check();
-    return _storage!.getString(_scoresFileKey) ?? "!scores.txt";
-  }
-
-  List<String> getAppKeys() {
-    _check();
-    return _storage!.getKeys().where((key) => !key.startsWith("_")).toList();
-  }
-
-  int getStars(String song) {
-    _check();
-    return _storage!.getInt(song) ?? 0;
-  }
-
-  int getMinStarsToPlay() {
-    _check();
-    return _storage!.getInt(_minStarsKey) ?? 0; // 0 = all songs
-  }
-
-  String getVersion() {
-    _check();
-    return "${_info!.appName} v${_info!.version} build ${_info!.buildNumber}";
-  }
-
-  Future<bool> setServerUri(String uri) {
-    _check();
-    try {
-      Uri.parse(uri); // additional check
-      return _storage!.setString(_serverUriKey, uri);
-    } catch (e) {
-      TommyLogger.logger.error("Cannot parse uri: $uri ($e)", 3000);
-      return Future.value(false);
-    }
-  }
-
-  Future<bool> setStars(String song, int stars) {
-    _check();
-    if (song.isNotEmpty)
-      return _storage!.setInt(song, stars);
-    return Future.value(false);
-  }
-
-  Future<bool> setMinStarsToPlay(int stars) {
-    _check();
-    if (0 <= stars && stars <= 5)
-      return _storage!.setInt(_minStarsKey, stars);
-    return Future.value(false);
-  }
-
-  Future<bool> setScoresFilename(String name) {
-    _check();
+  // _SERVER_SCORES_FILE
+  String get scoresFilename => _storage!.getString("_SERVER_SCORES_FILE") ?? "!scores.txt";
+  set scoresFilename(String name) {
     if (name.isNotEmpty)
-      return _storage!.setString(_scoresFileKey, name);
-    return Future.value(false);
+      _storage!.setString("_SERVER_SCORES_FILE", name);
   }
 
-  void _check() {
-    if (_storage == null || _info == null) throw Exception("ERROR: call Settings.instance.init() in main app widget");
+  // _MIN_STARS_TO_PLAY
+  int get minStarsToPlay => _storage!.getInt("_MIN_STARS_TO_PLAY") ?? 0; // 0 = play all
+  set minStarsToPlay(int stars) {
+    if (0 <= stars && stars <= 5)
+      _storage!.setInt("_MIN_STARS_TO_PLAY", stars);
   }
+
+  // stars (song name = key)
+  int getStars(String song) => _storage!.getInt(song) ?? 0;
+  void setStars(String song, int stars) {
+    if (song.isNotEmpty)
+      _storage!.setInt(song, stars);
+  }
+
+  // get all scores
+  List<String> get appKeys => _storage!.getKeys().where((key) => !key.startsWith("_")).toList();
+
+  // app version
+  String get version => "${_info!.appName} v${_info!.version} build ${_info!.buildNumber}";
 }

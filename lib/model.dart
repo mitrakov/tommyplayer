@@ -29,11 +29,11 @@ class MyModel extends Model {
   }
 
   Future<String?> writeScoreToTempFile() async {
-    final settings = Settings.instance;
-    final filename = settings.getScoresFilename();
+    final settings = Settings.local;
+    final filename = settings.scoresFilename;
     try {
       final filePath = "${(await getTemporaryDirectory()).path}/$filename";
-      final content = settings.getAppKeys().map((key) => "$key|${settings.getStars(key)}").join("\n");
+      final content = settings.appKeys.map((key) => "$key|${settings.getStars(key)}").join("\n");
       await File(filePath).writeAsString(content);
       return filePath;
     } catch (e) {
@@ -43,7 +43,7 @@ class MyModel extends Model {
   }
 
   List<Song> _filterSongs(List<Song> list) {
-    final minStars = Settings.instance.getMinStarsToPlay();
+    final minStars = Settings.local.minStarsToPlay;
 
     if (minStars > 0) {
       TommyLogger.logger.info("MinStars = $minStars, let's play only top songs", 1000);
