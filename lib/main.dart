@@ -115,7 +115,7 @@ class _MainAppState extends State<MainApp> {
     return MaterialApp(
       title: "Tommy Player",
       theme: ThemeData(primarySwatch: Colors.purple),
-      home: ScopedModelDescendant<MyModel>(builder: (context, child, model) {
+      home: ScopedModelDescendant<MyModel>(builder: (context, child, model) { // TODO do we need this?
         final stars = Settings.local.getStars(currentSong);
         TommyLogger.logger.init(context);
         return Scaffold(
