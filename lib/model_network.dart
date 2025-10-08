@@ -37,15 +37,15 @@ class ModelNetwork {
       final response = await http.get(Uri.parse(uri));
       if (response.statusCode == 200) {
         var n = 0;
-        response.body.split('\n').where((s) => s.isNotEmpty).forEach((line) {
+        await Future.wait(response.body.split('\n').where((s) => s.isNotEmpty).map((line) async {
           final lst = line.split("|");
           try {
             final song = lst.first;
             final stars = int.parse(lst[1]);
-            settings.setStars(song, stars);
+            await settings.setStars(song, stars);
             n++;
           } catch (e) { TommyLogger.logger.error("Error: cannot handle line $n from scores: $lst, ($e)", 1000); }
-        });
+        }));
         TommyLogger.logger.info("Loaded $n scores from $filename", 1000);
       } else if (response.statusCode == 404) {
         TommyLogger.logger.warn("File '$filename' is not found on your server.\nUpload this file to music directory to keep scores!", 2000);

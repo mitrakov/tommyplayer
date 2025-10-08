@@ -27,13 +27,13 @@ class _SettingsWidgetState extends State<SettingsWidget> {
             Expanded(
               child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
                 const Text("Hostname or IP-address:"),
-                TextField(controller: _serverUriCtrl, onChanged: (s) => settings.serverUri = s, decoration: d),
+                TextField(controller: _serverUriCtrl, onChanged: settings.setServerUri, decoration: d),
                 const SizedBox(height: 20),
                 const Text("Scores filename:"),
-                TextField(controller: _scoresFileCtrl, onChanged: (s) => settings.scoresFilename = s, decoration: d),
+                TextField(controller: _scoresFileCtrl, onChanged: settings.setScoresFilename, decoration: d),
                 const SizedBox(height: 20),
                 const Text("Min stars to play 0-5 (0 = play all):"),
-                TextField(controller: _minStarsCtrl, onChanged: (s) => settings.minStarsToPlay = int.tryParse(s) ?? 0, decoration: d),
+                TextField(controller: _minStarsCtrl, onChanged: (s)=> settings.setMinStarsToPlay(int.tryParse(s) ?? 0), decoration: d),
               ]),
             ),
           ],

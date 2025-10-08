@@ -45,7 +45,7 @@ class _MainAppState extends State<MainApp> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       // init background playback
       await JustAudioBackground.init(
-        androidNotificationChannelId: 'com.mitrakov.self.player.channel',
+        androidNotificationChannelId: 'com.mitrakoff.self.tommyplayer.channel',
         androidNotificationChannelName: 'Audio playback',
         androidNotificationOngoing: true,
       );

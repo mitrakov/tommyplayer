@@ -9,7 +9,7 @@ import 'package:tommyplayer/tommylogger.dart';
 
 /// Main model class
 class MyModel extends Model {
-  static const THROTTLING_MSEC = 1800; // performance: sleep N msec between each feed to Player instance (min 1000!)
+  static const THROTTLING_MSEC = 1700; // performance: sleep N msec between each feed to Player instance (min 1000!)
   static const MAX_PLAYLIST = 200; // performance: limit total count of songs
 
   // vals

@@ -366,7 +366,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.mitrakov.self.player.tommyplayer;
+				PRODUCT_BUNDLE_IDENTIFIER = com.mitrakoff.self.tommyplayer;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
@@ -501,7 +501,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.mitrakov.self.player.tommyplayer;
+				PRODUCT_BUNDLE_IDENTIFIER = com.mitrakoff.self.tommyplayer;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
@@ -530,7 +530,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.mitrakov.self.player.tommyplayer;
+				PRODUCT_BUNDLE_IDENTIFIER = com.mitrakoff.self.tommyplayer;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
