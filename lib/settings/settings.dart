@@ -19,6 +19,7 @@ class Settings {
   // _SERVER_URI
   String get serverUri => _storage!.getString("_SERVER_URI") ?? "http://mitrakoff.ru/music";
   Future<void> setServerUri(String uri) async {
+    if (uri == serverUri) return;
     if (Uri.tryParse(uri) != null)
       await _storage!.setString("_SERVER_URI", uri);
     else TommyLogger.logger.error("Cannot parse uri: $uri", 3000);
@@ -27,6 +28,7 @@ class Settings {
   // _SERVER_SCORES_FILE
   String get scoresFilename => _storage!.getString("_SERVER_SCORES_FILE") ?? "!scores.txt";
   Future<void> setScoresFilename(String name) async {
+    if (name == scoresFilename) return;
     if (name.isNotEmpty)
       await _storage!.setString("_SERVER_SCORES_FILE", name);
   }
@@ -34,6 +36,7 @@ class Settings {
   // _MIN_STARS_TO_PLAY
   int get minStarsToPlay => _storage!.getInt("_MIN_STARS_TO_PLAY") ?? 0; // 0 = play all
   Future<void> setMinStarsToPlay(int stars) async {
+    if (stars == minStarsToPlay) return;
     if (0 <= stars && stars <= 5)
       await _storage!.setInt("_MIN_STARS_TO_PLAY", stars);
   }
@@ -41,6 +44,7 @@ class Settings {
   // stars (song name = key)
   int getStars(String song) => _storage!.getInt(song) ?? 0;
   Future<void> setStars(String song, int stars) async {
+    if (getStars(song) == stars) return;
     if (song.isNotEmpty)
       await _storage!.setInt(song, stars);
   }
