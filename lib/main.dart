@@ -12,7 +12,8 @@ import 'package:tommyplayer/settings/settingswidget.dart';
 import 'package:tommyplayer/model.dart';
 import 'package:tommyplayer/shuffle.dart';
 
-// allow insecure "http" in settings!
+// 1. allow insecure "http" in settings (iOS/MacOS: NSAllowsArbitraryLoads, Android: usesCleartextTraffic (now deprecated, check)
+// 2. there is a bug with ratings of files with cyrillic "й" and "ё" named in Windows; bug is not fixed (I've just renamed files)
 void main() async {
   WidgetsFlutterBinding.ensureInitialized(); // allow "async" in main
   await Settings.init();
