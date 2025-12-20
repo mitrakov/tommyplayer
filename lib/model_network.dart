@@ -1,4 +1,3 @@
-// ignore_for_file: curly_braces_in_flow_control_structures
 import 'package:http/http.dart' as http;
 import 'package:html/parser.dart';
 import 'package:tommyplayer/song.dart';
@@ -48,7 +47,8 @@ class ModelNetwork {
         }));
         TommyLogger.logger.info("Loaded $n scores from $filename", 1000);
       } else if (response.statusCode == 404) {
-        TommyLogger.logger.warn("File '$filename' is not found on your server.\nUpload this file to music directory to keep scores!", 2000);
+        TommyLogger.logger
+            .warn("File '$filename' is not found on your server.\nUpload this file to music directory to sync scores!", 2000);
       } else throw Exception("Error: status=${response.statusCode}; response=${response.body}");
     } catch (e) {
       TommyLogger.logger.error("Error loadScores(): $uri ($e)", 3000);

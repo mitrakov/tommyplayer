@@ -1,29 +1,25 @@
-# built with Flutter 3.19.4, Dart SDK 3.3.2, CocoaPods 1.16.2
+# built with Flutter 3.38.5 (Mac Apple M1), Dart SDK 3.10.4, CocoaPods 1.16.2, Xcode 26.2
 name: tommyplayer
 description: Tommy Player
-
-version: 1.5.3+19
+version: 1.5.4+20
 
 environment:
-  sdk: '>=3.2.6 <4.0.0'
+  sdk: '>=3.10.3 <4.0.0'
 
 dependencies:
   flutter:
     sdk: flutter
-  just_audio: 0.9.36                    # audio player (0.9.34 is stable, 0.9.36 is possibly unstable)
-  just_audio_background: 0.0.1-beta.10  # background playback support (beta.10 is stable, beta.11 is possibly unstable)
-  http: 1.2.0                           # http support (1.2.1 is incompatible with sdk 3.2.6)
-  html: 0.15.4                          # html support
+  just_audio: 0.10.5                    # audio player
+  just_audio_background: 0.0.1-beta.17  # background playback support
+  http: 1.6.0                           # http support
+  html: 0.15.6                          # html support
   scoped_model: 2.0.0                   # simple state management
-  uuid: 4.3.3                           # generate unique ID for a song for background audio service
-  shared_preferences: 2.2.2             # key-value local storage
-  package_info_plus: 5.0.1              # build info
-  share_plus: 7.2.2                     # share-dialog
-  path_provider: 2.0.15                 # getTemporaryDirectory()
-  cupertino_icons: 1.0.6                # extra icons
-
-dev_dependencies:
-  flutter_lints: 3.0.1                  # linter from `analysis_options.yaml`
+  uuid: 4.5.2                           # generate unique ID for a song for background audio service
+  shared_preferences: 2.5.4             # key-value local storage
+  package_info_plus: 9.0.0              # build info
+  share_plus: 12.0.1                    # share-dialog
+  path_provider: 2.1.5                  # getTemporaryDirectory()
+  cupertino_icons: 1.0.8                # extra icons
 
 flutter:
   uses-material-design: true            # Material Icons font

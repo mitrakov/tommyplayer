@@ -1,4 +1,3 @@
-// ignore_for_file: use_key_in_widget_constructors
 import 'package:flutter/material.dart';
 import 'package:tommyplayer/settings/settings.dart';
 
@@ -33,7 +32,7 @@ class _SettingsWidgetState extends State<SettingsWidget> {
                 TextField(controller: _scoresFileCtrl, onChanged: settings.setScoresFilename, decoration: d),
                 const SizedBox(height: 20),
                 const Text("Min stars to play 0-5 (0 = play all):"),
-                TextField(controller: _minStarsCtrl, onChanged: (s)=> settings.setMinStarsToPlay(int.tryParse(s) ?? 0), decoration: d),
+                TextField(controller: _minStarsCtrl, onChanged: (s)=>settings.setMinStarsToPlay(int.tryParse(s) ?? 0), decoration: d),
               ]),
             ),
           ],

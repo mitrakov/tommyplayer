@@ -1,4 +1,3 @@
-// ignore_for_file: avoid_print, curly_braces_in_flow_control_structures
 import 'package:flutter/material.dart';
 
 class TommyLogger {
@@ -28,7 +27,7 @@ class TommyLogger {
       if (_context != null) {
         final bar = SnackBar(content: Text(s), duration: Duration(milliseconds: millis), backgroundColor: colour);
         ScaffoldMessenger.of(_context!).showSnackBar(bar);
-      } else print("[!]: if you see this message, TommyLogger is not initialized properly. Call TommyLogger.instance.init(context) inside 'Scaffold' widget");
+      } else print("[!]: TommyLogger is not initialized properly. Call TommyLogger.instance.init(context) inside 'Scaffold' widget");
 
       if (_printToStdout)
         print("${DateTime.now()} [${_logLevel.name.toUpperCase()}]: $s");

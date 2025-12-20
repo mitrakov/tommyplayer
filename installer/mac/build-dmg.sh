@@ -19,7 +19,7 @@ create-dmg \
   --window-size 600 425 \
   --text-size 16 \
   --icon-size 100 \
-  --icon "Tommyplayer.app" 185 165 \
+  --icon "Tommy Player.app" 185 165 \
   --app-drop-link 405 165 \
   "tommyplayer-$1.dmg" \
   "App/"

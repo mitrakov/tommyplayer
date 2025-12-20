@@ -1,4 +1,3 @@
-// ignore_for_file: avoid_print, use_key_in_widget_constructors, constant_identifier_names, curly_braces_in_flow_control_structures
 import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
@@ -14,6 +13,24 @@ import 'package:tommyplayer/shuffle.dart';
 
 // 1. allow insecure "http" in settings (iOS/MacOS: NSAllowsArbitraryLoads, Android: usesCleartextTraffic (now deprecated, check)
 // 2. there is a bug with ratings of files with cyrillic "й" and "ё" named in Windows; bug is not fixed (I've just renamed files)
+
+/*
+Build for iOS:
+  bump version in pubspec.yaml
+  flutter build ios
+  xCode: Product -> Destination -> Any iOS Device (arm64)
+  xCode: Product -> Archive -> Distribute App -> Release Testing
+  rename and move *.ipa file to _dist
+
+Build for MacOS:
+  bump version in pubspec.yaml
+  flutter build macos
+  xCode: Product -> Destination -> Any Mac (arm64, x86_64)
+  xCode: Product -> Archive -> Distribute App -> Direct Distribution -> wait for 30-40 sec for notarization service to complete
+  copy "*.app" to "_installer/macos/App"
+  run _installer/macos/build-dmg.sh
+  move *.dmg image to _dist/
+ */
 void main() async {
   WidgetsFlutterBinding.ensureInitialized(); // allow "async" in main
   await Settings.init();
