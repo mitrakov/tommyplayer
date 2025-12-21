@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # https://github.com/create-dmg/create-dmg
-if ! [ `which create-dmg` ]; then
+if ! [ "$(which create-dmg)" ]; then
     echo "Please install: brew install create-dmg"
     exit 1
 fi
