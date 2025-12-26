@@ -21,5 +21,5 @@ create-dmg \
   --icon-size 100 \
   --icon "Tommy Player.app" 185 165 \
   --app-drop-link 405 165 \
-  "tommyplayer-$1.dmg" \
+  "tommyplayer-macos-$1.dmg" \
   "App/"
