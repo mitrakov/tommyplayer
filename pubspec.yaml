@@ -1,6 +1,6 @@
 # built with Flutter 3.38.5 (Mac Apple M1), Dart SDK 3.10.4, CocoaPods 1.16.2, Xcode 26.2
 name: tommyplayer
-description: Tommy Player
+description: Tommy Player for iOS and MacOS (Windows/Linux are not supported)
 version: 1.5.5+21
 
 environment:
@@ -9,7 +9,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  just_audio: 0.10.5                    # audio player
+  just_audio: 0.10.5                    # audio player (Windows and Linux are not supported)
   just_audio_background: 0.0.1-beta.17  # background playback support
   http: 1.6.0                           # http support
   html: 0.15.6                          # html support
