@@ -21,11 +21,11 @@ dependencies:
   path_provider: 2.1.5                  # getTemporaryDirectory()
   cupertino_icons: 1.0.8                # extra icons
 
-dev_dependencies:
-  flutter_launcher_icons: 0.14.4
-
 flutter:
   uses-material-design: true            # Material Icons font
+
+dev_dependencies:
+  flutter_launcher_icons: 0.14.4        # Icons generator, run: "dart run flutter_launcher_icons"
 
 flutter_launcher_icons:
   ios: true
