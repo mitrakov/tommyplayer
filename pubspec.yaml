@@ -1,7 +1,7 @@
 # built with Flutter 3.38.5 (Mac Apple M1), Dart SDK 3.10.4, CocoaPods 1.16.2, Xcode 26.2
 name: tommyplayer
 description: Tommy Player for iOS and MacOS (Windows/Linux are not supported)
-version: 1.5.5+21
+version: 1.6.0+22
 
 environment:
   sdk: '>=3.10.3 <4.0.0'
@@ -21,5 +21,15 @@ dependencies:
   path_provider: 2.1.5                  # getTemporaryDirectory()
   cupertino_icons: 1.0.8                # extra icons
 
+dev_dependencies:
+  flutter_launcher_icons: 0.14.4
+
 flutter:
   uses-material-design: true            # Material Icons font
+
+flutter_launcher_icons:
+  ios: true
+  image_path: "installer/mac/appicon.png"
+  macos:
+    generate: true
+    image_path: "installer/mac/appicon.png"
