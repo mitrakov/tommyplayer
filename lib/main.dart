@@ -91,42 +91,6 @@ class _MainAppState extends State<MainApp> {
     });
   }
 
-  /// Callback for PLAY and PAUSE buttons
-  void _onPlayButtonClick() {
-    if (widget.player.playing) widget.player.pause();
-    else widget.player.play();
-  }
-
-  /// Updates current song name in "setState" manner
-  void _updateCurrentSong() {
-    final int? index = widget.player.currentIndex;
-    final List<IndexedAudioSource> seq = widget.player.audioSource?.sequence ?? [];
-    if (index != null && seq.isNotEmpty) {
-      setState(() {
-        currentSong = "${seq[index].tag.title}";
-      });
-    }
-  }
-
-  /// Saves a user's "like" for a current song to Shared Preferences
-  void _setLike(int like) {
-    Settings.local.setStars(currentSong, like);
-    setState(() {}); // to redraw the stars
-  }
-
-  /// Calls ShareWith dialog to upload a "!scores.txt" file
-  void _shareScoreFile() async {
-    final fileName = Settings.local.scoresFilename;
-    try {
-      final filepath = await widget.model.writeScoreToTempFile();
-      if (filepath != null) {
-        await Share.shareXFiles([XFile(filepath)], subject: 'Save file "$fileName"?');
-      }
-    } catch (e) {
-      TommyLogger.logger.error("Error sharing file $fileName: $e", 3000);
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final player = widget.player;
@@ -226,5 +190,41 @@ class _MainAppState extends State<MainApp> {
         );
       }),
     );
+  }
+
+  /// Callback for PLAY and PAUSE buttons
+  void _onPlayButtonClick() {
+    if (widget.player.playing) widget.player.pause();
+    else widget.player.play();
+  }
+
+  /// Updates current song name in "setState" manner
+  void _updateCurrentSong() {
+    final int? index = widget.player.currentIndex;
+    final List<IndexedAudioSource> seq = widget.player.audioSource?.sequence ?? [];
+    if (index != null && seq.isNotEmpty) {
+      setState(() {
+        currentSong = "${seq[index].tag.title}";
+      });
+    }
+  }
+
+  /// Saves a user's "like" for a current song to Shared Preferences
+  void _setLike(int like) {
+    Settings.local.setStars(currentSong, like);
+    setState(() {}); // to redraw the stars
+  }
+
+  /// Calls ShareWith dialog to upload a "!scores.txt" file
+  void _shareScoreFile() async {
+    final fileName = Settings.local.scoresFilename;
+    try {
+      final filepath = await widget.model.writeScoreToTempFile();
+      if (filepath != null) {
+        await Share.shareXFiles([XFile(filepath)], subject: 'Save file "$fileName"?');
+      }
+    } catch (e) {
+      TommyLogger.logger.error("Error sharing file $fileName: $e", 3000);
+    }
   }
 }
