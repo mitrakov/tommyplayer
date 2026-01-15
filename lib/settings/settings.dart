@@ -12,7 +12,7 @@ class Settings {
     _info = await PackageInfo.fromPlatform();
   }
   static Settings get local {
-    if (_storage != null) return _instance; else throw Exception("Settings are not initialized. Call Settings.instance.init() first");
+    if (_storage != null) return _instance; else throw Exception("Settings are not initialized. Call Settings.local.init() first");
   }
 
   // _SERVER_URI

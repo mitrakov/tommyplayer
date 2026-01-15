@@ -9,24 +9,17 @@ import 'package:tommyplayer/tommylogger.dart';
 
 /// Main model class
 class MyModel extends Model {
-  static const THROTTLING_MSEC = 1700; // performance: sleep N msec between each feed to Player instance (min 1000!)
-  static const MAX_PLAYLIST = 256;     // performance: limit total count of songs
-
-  // vals
   final ModelNetwork net = ModelNetwork();
   final Random _random = Random(DateTime.now().millisecondsSinceEpoch);
-  late final Stream<Song> playlistStream;
 
   /// Loads songs and scores from the server. Should be called once
-  Future<void> loadAll() async {
+  Future<List<Song>> loadAll() async {
     await net.loadScores();
     final list = await net.loadSongs();
-    final n = list.length;
-    final newList = _filterSongs(list);
-    playlistStream = Stream.periodic(const Duration(milliseconds: THROTTLING_MSEC), (i) => newList[i]).take(newList.length);
-    TommyLogger.logger.info("Will be added ${newList.length}/$n songs", 1000);
+    return _filterSongs(list);
   }
 
+  /// Writes score file (usually !scores.txt) in temp dir on the device
   Future<String?> writeScoreToTempFile() async {
     final settings = Settings.local;
     final filename = settings.scoresFilename;
@@ -43,6 +36,7 @@ class MyModel extends Model {
 
   List<Song> _filterSongs(List<Song> list) {
     final minStars = Settings.local.minStarsToPlay;
+    final initListSize = list.length;
 
     if (minStars > 0) {
       TommyLogger.logger.info("MinStars = $minStars, let's play only top songs", 1000);
@@ -55,7 +49,8 @@ class MyModel extends Model {
       list.retainWhere((song) => _random.nextDouble() < (song.score / 5.0));
     }
 
-    list.shuffle(_random);                 // "shuffle" must be BEFORE "take(MAX_PLAYLIST)"!
-    return list.take(MAX_PLAYLIST).toList();
+    list.shuffle(_random);
+    TommyLogger.logger.info("Will be added ${list.length}/$initListSize songs", 1000);
+    return list;
   }
 }

@@ -67,25 +67,15 @@ class _MainAppState extends State<MainApp> {
         androidNotificationOngoing: true,
       );
 
-      // init model
-      await widget.model.loadAll();
-
-      // player setup
-      // set "useLazyPreparation" to "true" to load as late as possible
-      // set "children" to [] to avoid loading tracks all-at-once!
-      widget.player.setLoopMode(LoopMode.all);
-      widget.player.playbackEventStream.listen((e) => _updateCurrentSong()); // to get a new song name once playback finished
-
-      // async loading
+      // load and add songs
       const uuid = Uuid();
       final server = Settings.local.serverUri;
-      widget.model.playlistStream.listen((song) {
-        // "audioSource.add" is quite heady and must be throttled!
-        final item = MediaItem(id: uuid.v4(), title: song.text);
-        widget.player.addAudioSource(AudioSource.uri(Uri.parse("$server/${song.url}"), tag: item));
-      });
-
-      TommyLogger.logger.info("TommyPlayer INIT done. Enjoy!", 1000);
+      final songs = await widget.model.loadAll();
+      widget.player.setLoopMode(LoopMode.all);
+      widget.player.playbackEventStream.listen((e) => _updateCurrentSong()); // update song name once playback finished
+      widget.player.addAudioSources(songs.map((song) =>
+        AudioSource.uri(Uri.parse("$server/${song.url}"), tag: MediaItem(id: uuid.v4(), title: song.text))).toList()
+      );
     });
   }
 
@@ -192,7 +182,8 @@ class _MainAppState extends State<MainApp> {
 
   /// Callback for PLAY and PAUSE buttons
   void _onPlayButtonClick() {
-    if (widget.player.playing) widget.player.pause();
+    if (widget.player.playing)
+      widget.player.pause();
     else widget.player.play();
   }
 
