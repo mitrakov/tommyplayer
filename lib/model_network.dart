@@ -50,9 +50,7 @@ class ModelNetwork {
         TommyLogger.logger
             .warn("File '$filename' is not found on your server.\nUpload this file to music directory to sync scores!", 2000);
       } else throw Exception("Error: status=${response.statusCode}; response=${response.body}");
-    } catch (e) {
-      TommyLogger.logger.error("Error loadScores(): $uri ($e)", 3000);
-    }
+    } catch (e) { TommyLogger.logger.error("Error loadScores(): $uri ($e)", 3000); }
   }
 
   Future<void> uploadFile(String path) async {
@@ -66,9 +64,7 @@ class ModelNetwork {
       if (response.statusCode == 200) {
         TommyLogger.logger.info("Upload OK to $uri", 1000);
       } else throw Exception("Error: $response");
-    } catch (e) {
-      TommyLogger.logger.error("Error uploadFile($path): uri=$uri, filename=$filename ($e)", 3000);
-    }
+    } catch (e) { TommyLogger.logger.error("Error uploadFile($path): uri=$uri, filename=$filename ($e)", 3000); }
   }
 
   bool _isSupported(String filename) {

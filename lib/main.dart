@@ -9,7 +9,6 @@ import 'package:tommyplayer/tommylogger.dart';
 import 'package:tommyplayer/settings/settings.dart';
 import 'package:tommyplayer/settings/settingswidget.dart';
 import 'package:tommyplayer/model.dart';
-import 'package:tommyplayer/shuffle.dart';
 
 // 1. allow insecure "http" in settings (iOS/MacOS: NSAllowsArbitraryLoads, Android: usesCleartextTraffic (now deprecated, check)
 // 2. there is a bug with ratings of files with cyrillic "й" and "ё" named in Windows; bug is not fixed (I've just renamed files)
@@ -74,8 +73,6 @@ class _MainAppState extends State<MainApp> {
       // player setup
       // set "useLazyPreparation" to "true" to load as late as possible
       // set "children" to [] to avoid loading tracks all-at-once!
-      final audioSource = ConcatenatingAudioSource(useLazyPreparation: true, children: [], shuffleOrder: NoShuffleOrder());
-      widget.player.setAudioSource(audioSource, preload: false); // set preload to "false" to delay immediate loading
       widget.player.setLoopMode(LoopMode.all);
       widget.player.playbackEventStream.listen((e) => _updateCurrentSong()); // to get a new song name once playback finished
 
@@ -84,7 +81,8 @@ class _MainAppState extends State<MainApp> {
       final server = Settings.local.serverUri;
       widget.model.playlistStream.listen((song) {
         // "audioSource.add" is quite heady and must be throttled!
-        audioSource.add(AudioSource.uri(Uri.parse("$server/${song.url}"), tag: MediaItem(id: uuid.v4(), title: song.text)));
+        final item = MediaItem(id: uuid.v4(), title: song.text);
+        widget.player.addAudioSource(AudioSource.uri(Uri.parse("$server/${song.url}"), tag: item));
       });
 
       TommyLogger.logger.info("TommyPlayer INIT done. Enjoy!", 1000);
@@ -201,10 +199,10 @@ class _MainAppState extends State<MainApp> {
   /// Updates current song name in "setState" manner
   void _updateCurrentSong() {
     final int? index = widget.player.currentIndex;
-    final List<IndexedAudioSource> seq = widget.player.audioSource?.sequence ?? [];
+    final seq = widget.player.audioSources;
     if (index != null && seq.isNotEmpty) {
       setState(() {
-        currentSong = "${seq[index].tag.title}";
+        currentSong = "${seq[index].sequence.first.tag.title}";
       });
     }
   }
@@ -221,10 +219,8 @@ class _MainAppState extends State<MainApp> {
     try {
       final filepath = await widget.model.writeScoreToTempFile();
       if (filepath != null) {
-        await Share.shareXFiles([XFile(filepath)], subject: 'Save file "$fileName"?');
+        await SharePlus.instance.share(ShareParams(title: 'Save file "$fileName"?', files: [XFile(filepath)]));
       }
-    } catch (e) {
-      TommyLogger.logger.error("Error sharing file $fileName: $e", 3000);
-    }
+    } catch (e) { TommyLogger.logger.error("Error sharing file $fileName: $e", 3000); }
   }
 }
