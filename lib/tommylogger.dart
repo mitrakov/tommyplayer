@@ -27,7 +27,7 @@ class TommyLogger {
       if (_context != null) {
         final bar = SnackBar(content: Text(s), duration: Duration(milliseconds: millis), backgroundColor: colour);
         ScaffoldMessenger.of(_context!).showSnackBar(bar);
-      } else print("[!]: TommyLogger is not initialized properly. Call TommyLogger.instance.init(context) inside 'Scaffold' widget");
+      } else print("[!] TommyLogger is not initialized properly. Call TommyLogger.logger.init(context) inside 'MaterialApp' context");
 
       if (_printToStdout)
         print("${DateTime.now()} [${_logLevel.name.toUpperCase()}]: $s");
@@ -53,5 +53,5 @@ enum LogLevel implements Comparable<LogLevel> {
   @override
   int compareTo(LogLevel other) => priority - other.priority;
 
-  bool operator <=(LogLevel other) => compareTo(other) <= 0;
+  bool operator <= (LogLevel other) => compareTo(other) <= 0;
 }

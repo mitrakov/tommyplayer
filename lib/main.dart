@@ -51,11 +51,11 @@ class MainApp extends StatefulWidget {
 }
 
 class _MainAppState extends State<MainApp> {
-  static const double MARGIN = 25; // margin between icons
-  static const double ICON_SIZE = 65;
-  static const double ICON_SIZE_SMALL = 30;
+  static const double MARGIN = 13; // margin between icons
+  static const double ICON_SIZE_SMALL = 40;
 
   String currentSong = "";
+  double get ICON_SIZE => MediaQuery.of(context).orientation == Orientation.portrait ? 100 : 105;
 
   @override
   void initState() {
@@ -158,11 +158,12 @@ class _MainAppState extends State<MainApp> {
           body: Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
+              spacing: MARGIN,
               children: [
-                Text(currentSong, style: const TextStyle(fontSize: 19)),
-                const SizedBox(height: MARGIN),
+                Text(currentSong, textAlign: TextAlign.center, style: const TextStyle(fontSize: 19)),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
+                  spacing: MARGIN,
                   children: [
                     IconButton(
                       icon: const Icon(CupertinoIcons.arrowshape_turn_up_left_circle),
@@ -170,14 +171,12 @@ class _MainAppState extends State<MainApp> {
                       iconSize: ICON_SIZE,
                       onPressed: player.seekToPrevious,
                     ),
-                    const SizedBox(width: MARGIN),
                     IconButton(
                       icon: Icon(player.playing ? Icons.pause_circle_outlined : Icons.play_circle_outlined),
                       color: player.playing ? Colors.deepOrange : Colors.green,
                       iconSize: ICON_SIZE,
                       onPressed: _onPlayButtonClick,
                     ),
-                    const SizedBox(width: MARGIN),
                     IconButton(
                       icon: const Icon(CupertinoIcons.arrowshape_turn_up_right_circle),
                       color: Colors.blue,
@@ -186,7 +185,6 @@ class _MainAppState extends State<MainApp> {
                     )
                   ]
                 ),
-                const SizedBox(height: MARGIN),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
