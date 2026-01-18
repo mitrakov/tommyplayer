@@ -37,7 +37,11 @@ void main() async {
   await Settings.init();
   final model = MyModel();
 
-  runApp(ScopedModel(model: model, child: MainApp(model)));
+  runApp(ScopedModel(model: model, child: MaterialApp(
+    title: "Tommy Player",
+    theme: ThemeData(primarySwatch: Colors.purple),
+    home: MainApp(model)
+  )));
 }
 
 /// Main app widget
@@ -54,9 +58,11 @@ class MainApp extends StatefulWidget {
 class _MainAppState extends State<MainApp> {
   static const double MARGIN = 13; // margin between icons
   static const double ICON_SIZE_SMALL = 40;
+  late final player = widget.player;
+  late final model = widget.model;
 
   String currentSong = "";
-  int _prevIndex = -1;           // don't use player.previousIndex, it's not reliable
+  int _prevIndex = -1;           // to track down 'new song' events (don't use player.previousIndex, it's not reliable)
 
   double get ICON_SIZE => MediaQuery.of(context).orientation == Orientation.portrait ? 100 : 105;
 
@@ -74,10 +80,10 @@ class _MainAppState extends State<MainApp> {
       // load and add songs
       const uuid = Uuid();
       final server = Settings.local.serverUri;
-      final songs = await widget.model.loadAll();
-      widget.player.setLoopMode(LoopMode.all);
-      widget.player.playbackEventStream.listen(_onPlaybackEvent);
-      widget.player.addAudioSources(songs.map((song) {
+      final songs = await model.loadAll();
+      player.setLoopMode(LoopMode.all);
+      player.playbackEventStream.listen(_onPlaybackEvent);
+      player.addAudioSources(songs.map((song) {
         final item = MediaItem(id: uuid.v4(), title: song.text, rating: Rating.newStarRating(RatingStyle.range5stars, song.score));
         return AudioSource.uri(Uri.parse("$server/${song.url}"), tag: item);
       }).toList());
@@ -86,129 +92,113 @@ class _MainAppState extends State<MainApp> {
 
   @override
   Widget build(BuildContext context) {
-    final player = widget.player;
-    return MaterialApp(
-      title: "Tommy Player",
-      theme: ThemeData(primarySwatch: Colors.purple),
-      home: ScopedModelDescendant<MyModel>(builder: (context, child, model) { // TODO do we need this?
-        final stars = Settings.local.getStars(currentSong);
-        TommyLogger.logger.init(context);
-        return Scaffold(
-          appBar: AppBar(
-            centerTitle: true,
-            title: const Text("Tommy Player"),
-            actions: [
-              IconButton(
-                icon: const Icon(CupertinoIcons.gear_big),
-                onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => SettingsWidget()))
-              ),
-              IconButton(
-                icon: const Icon(CupertinoIcons.info_circle),
-                onPressed: () => TommyLogger.logger.info(Settings.local.version, 2000),
-              ),
-              IconButton(
-                icon: const Icon(CupertinoIcons.share_up),
-                onPressed: _shareScoreFile,
-              ),
-            ],
+    TommyLogger.logger.init(context);
+    final stars = Settings.local.getStars(currentSong);
+    return Scaffold(
+      appBar: AppBar(
+        centerTitle: true,
+        title: const Text("Tommy Player"),
+        actions: [
+          IconButton(
+            icon: const Icon(CupertinoIcons.gear_big),
+            onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => SettingsWidget()))
           ),
-          body: Center(
-            child: Column(
+          IconButton(
+            icon: const Icon(CupertinoIcons.info_circle),
+            onPressed: () => TommyLogger.logger.info(Settings.local.version, 2000),
+          ),
+          IconButton(
+            icon: const Icon(CupertinoIcons.share_up),
+            onPressed: _shareScoreFile,
+          ),
+        ],
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          spacing: MARGIN,
+          children: [
+            Text(currentSong, textAlign: TextAlign.center, style: const TextStyle(fontSize: 19)),
+            Row(
               mainAxisAlignment: MainAxisAlignment.center,
               spacing: MARGIN,
               children: [
-                Text(currentSong, textAlign: TextAlign.center, style: const TextStyle(fontSize: 19)),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  spacing: MARGIN,
-                  children: [
-                    IconButton(
-                      icon: const Icon(CupertinoIcons.arrowshape_turn_up_left_circle),
-                      color: Colors.blue,
-                      iconSize: ICON_SIZE,
-                      onPressed: player.seekToPrevious,
-                    ),
-                    IconButton(
-                      icon: Icon(player.playing
-                        ? Icons.pause_circle_outlined
-                        : Icons.play_circle_outlined),
-                      color: player.playing ? Colors.deepOrange : Colors.green,
-                      iconSize: ICON_SIZE,
-                      onPressed: _onPlayButtonClick,
-                    ),
-                    IconButton(
-                      icon: const Icon(CupertinoIcons.arrowshape_turn_up_right_circle),
-                      color: Colors.blue,
-                      iconSize: ICON_SIZE,
-                      onPressed: player.seekToNext,
-                    )
-                  ]
+                IconButton(
+                  icon: const Icon(CupertinoIcons.arrowshape_turn_up_left_circle),
+                  color: Colors.blue,
+                  iconSize: ICON_SIZE,
+                  onPressed: player.seekToPrevious,
                 ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    IconButton(
-                      icon: const Icon(CupertinoIcons.star_fill),
-                      color: stars >= 1 ? Colors.orange : Colors.grey[400],
-                      iconSize: ICON_SIZE_SMALL,
-                      onPressed: () => _setLike(1),
-                    ),
-                    IconButton(
-                      icon: const Icon(CupertinoIcons.star_fill),
-                      color: stars >= 2 ? Colors.orange : Colors.grey[400],
-                      iconSize: ICON_SIZE_SMALL,
-                      onPressed: () => _setLike(2),
-                    ),
-                    IconButton(
-                      icon: const Icon(CupertinoIcons.star_fill),
-                      color: stars >= 3 ? Colors.orange : Colors.grey[400],
-                      iconSize: ICON_SIZE_SMALL,
-                      onPressed: () => _setLike(3),
-                    ),
-                    IconButton(
-                      icon: const Icon(CupertinoIcons.star_fill),
-                      color: stars >= 4 ? Colors.orange : Colors.grey[400],
-                      iconSize: ICON_SIZE_SMALL,
-                      onPressed: () => _setLike(4),
-                    ),
-                    IconButton(
-                      icon: const Icon(CupertinoIcons.star_fill),
-                      color: stars >= 5 ? Colors.orange : Colors.grey[400],
-                      iconSize: ICON_SIZE_SMALL,
-                      onPressed: () => _setLike(5),
-                    ),
-                  ],
+                IconButton(
+                  icon: Icon(player.playing
+                      ? Icons.pause_circle_outlined
+                      : Icons.play_circle_outlined),
+                  color: player.playing ? Colors.deepOrange : Colors.green,
+                  iconSize: ICON_SIZE,
+                  onPressed: _onPlayButtonClick,
+                ),
+                IconButton(
+                  icon: const Icon(CupertinoIcons.arrowshape_turn_up_right_circle),
+                  color: Colors.blue,
+                  iconSize: ICON_SIZE,
+                  onPressed: player.seekToNext,
                 ),
               ],
             ),
-          ),
-          floatingActionButton: Column(mainAxisSize: MainAxisSize.min, children: [
-            SizedBox(height: 30),
-            FloatingActionButton.small(child: Icon(_getPlayModeIcon()), onPressed: _changePlayMode),
-          ]),
-          floatingActionButtonLocation: FloatingActionButtonLocation.miniEndTop,
-        );
-      }),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                IconButton(
+                  icon: const Icon(CupertinoIcons.star_fill),
+                  color: stars >= 1 ? Colors.orange : Colors.grey[400],
+                  iconSize: ICON_SIZE_SMALL,
+                  onPressed: () => _setLike(1),
+                ),
+                IconButton(
+                  icon: const Icon(CupertinoIcons.star_fill),
+                  color: stars >= 2 ? Colors.orange : Colors.grey[400],
+                  iconSize: ICON_SIZE_SMALL,
+                  onPressed: () => _setLike(2),
+                ),
+                IconButton(
+                  icon: const Icon(CupertinoIcons.star_fill),
+                  color: stars >= 3 ? Colors.orange : Colors.grey[400],
+                  iconSize: ICON_SIZE_SMALL,
+                  onPressed: () => _setLike(3),
+                ),
+                IconButton(
+                  icon: const Icon(CupertinoIcons.star_fill),
+                  color: stars >= 4 ? Colors.orange : Colors.grey[400],
+                  iconSize: ICON_SIZE_SMALL,
+                  onPressed: () => _setLike(4),
+                ),
+                IconButton(
+                  icon: const Icon(CupertinoIcons.star_fill),
+                  color: stars >= 5 ? Colors.orange : Colors.grey[400],
+                  iconSize: ICON_SIZE_SMALL,
+                  onPressed: () => _setLike(5),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+      floatingActionButton: Column(mainAxisSize: MainAxisSize.min, children: [
+        SizedBox(height: 30),
+        FloatingActionButton.small(child: Icon(_getPlayModeIcon()), onPressed: _changePlayMode),
+      ]),
+      floatingActionButtonLocation: FloatingActionButtonLocation.miniEndTop,
     );
   }
 
-  /// Callback for PLAY and PAUSE buttons
-  void _onPlayButtonClick() {
-    setState(() {
-      if (widget.player.playing)
-        widget.player.pause();
-      else widget.player.play();
-    });
-  }
-
+  /// callback for Playback Events from AudioPlayer
   void _onPlaybackEvent(PlaybackEvent e) {
     final idx = e.currentIndex;
-    if (idx != null && idx != _prevIndex && idx < widget.player.audioSources.length && e.processingState == ProcessingState.ready) {
+    if (idx != null && idx != _prevIndex && idx < player.audioSources.length && e.processingState == ProcessingState.ready) {
       print("Playlist index = $idx");
       _prevIndex = idx;
 
-      final MediaItem item = widget.player.audioSources[idx].sequence.first.tag;
-      final model = ScopedModel.of<MyModel>(context);
+      final MediaItem item = player.audioSources[idx].sequence.first.tag;
       final allSongsRated = !model.scoreExists(score: 0);
       if (allSongsRated) {
         final stars = item.rating?.getStarRating() ?? 0;
@@ -217,13 +207,22 @@ class _MainAppState extends State<MainApp> {
         final play = playOnlyTop ? stars >= minStars : model.random.nextDouble() < stars / 5.0;
         if (!play) {
           print("Skipping to next");
-          Future.delayed(Duration.zero, () => widget.player.seekToNext());
+          Future.delayed(Duration.zero, () => player.seekToNext());
         }
       }
       setState(() {
         currentSong = item.title;
       });
     }
+  }
+
+  /// PLAY and PAUSE buttons
+  void _onPlayButtonClick() {
+    setState(() {
+      if (player.playing)
+        player.pause();
+      else player.play();
+    });
   }
 
   /// Saves a user's "like" for a current song to Shared Preferences
@@ -236,13 +235,14 @@ class _MainAppState extends State<MainApp> {
   void _shareScoreFile() async {
     final fileName = Settings.local.scoresFilename;
     try {
-      final filepath = await widget.model.writeScoreToTempFile();
+      final filepath = await model.writeScoreToTempFile();
       if (filepath != null) {
         await SharePlus.instance.share(ShareParams(title: 'Save file "$fileName"?', files: [XFile(filepath)]));
       }
     } catch (e) { TommyLogger.logger.error("Error sharing file $fileName: $e", 3000); }
   }
 
+  /// returns dice Icon depending on Settings.minStarsToPlay
   IconData _getPlayModeIcon() {
     switch (Settings.local.minStarsToPlay) {
       case 1:  return LineIcons.diceOne;
@@ -254,8 +254,9 @@ class _MainAppState extends State<MainApp> {
     }
   }
 
+  /// handler for "Dice" icon click
   void _changePlayMode() async {
-    if (ScopedModel.of<MyModel>(context).scoreExists(score: 0))
+    if (model.scoreExists(score: 0))
       TommyLogger.logger.warn("You can set min stars once all songs are rated", 2000);
     else setState(() {
       final newMinStars = (Settings.local.minStarsToPlay + 1) % 6;

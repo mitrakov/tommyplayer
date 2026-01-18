@@ -9,14 +9,14 @@ import 'package:tommyplayer/tommylogger.dart';
 
 /// Main model class
 class MyModel extends Model {
-  final ModelNetwork net = ModelNetwork();
+  final ModelNetwork _net = ModelNetwork();
   final Random random = Random(DateTime.now().millisecondsSinceEpoch);
-  final Map<int, bool> _scoreExists = {};
+  final Map<int, bool> _scoreExists = {}; // {k=3,v=true} means: ∃ at least one ★★★ song in the playlist
 
   /// Loads songs and scores from the server. Should be called once
   Future<List<Song>> loadAll() async {
-    await net.loadScores();
-    final list = await net.loadSongs();
+    await _net.loadScores();
+    final list = await _net.loadSongs();
     for (int i=0; i<=5; i++)
       _scoreExists[i] = list.any((song) => song.score == i);
     return _filterSongs(list);
