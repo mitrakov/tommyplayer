@@ -2,6 +2,8 @@ import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:just_audio_background/just_audio_background.dart';
+import 'package:audio_service/audio_service.dart';
+import 'package:line_icons/line_icons.dart';
 import 'package:uuid/uuid.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:scoped_model/scoped_model.dart';
@@ -54,6 +56,8 @@ class _MainAppState extends State<MainApp> {
   static const double ICON_SIZE_SMALL = 40;
 
   String currentSong = "";
+  int _prevIndex = -1;           // don't use player.previousIndex, it's not reliable
+
   double get ICON_SIZE => MediaQuery.of(context).orientation == Orientation.portrait ? 100 : 105;
 
   @override
@@ -72,10 +76,11 @@ class _MainAppState extends State<MainApp> {
       final server = Settings.local.serverUri;
       final songs = await widget.model.loadAll();
       widget.player.setLoopMode(LoopMode.all);
-      widget.player.playbackEventStream.listen((e) => _updateCurrentSong()); // update song name once playback finished
-      widget.player.addAudioSources(songs.map((song) =>
-        AudioSource.uri(Uri.parse("$server/${song.url}"), tag: MediaItem(id: uuid.v4(), title: song.text))).toList()
-      );
+      widget.player.playbackEventStream.listen(_onPlaybackEvent);
+      widget.player.addAudioSources(songs.map((song) {
+        final item = MediaItem(id: uuid.v4(), title: song.text, rating: Rating.newStarRating(RatingStyle.range5stars, song.score));
+        return AudioSource.uri(Uri.parse("$server/${song.url}"), tag: item);
+      }).toList());
     });
   }
 
@@ -124,7 +129,9 @@ class _MainAppState extends State<MainApp> {
                       onPressed: player.seekToPrevious,
                     ),
                     IconButton(
-                      icon: Icon(player.playing ? Icons.pause_circle_outlined : Icons.play_circle_outlined),
+                      icon: Icon(player.playing
+                        ? Icons.pause_circle_outlined
+                        : Icons.play_circle_outlined),
                       color: player.playing ? Colors.deepOrange : Colors.green,
                       iconSize: ICON_SIZE,
                       onPressed: _onPlayButtonClick,
@@ -175,6 +182,11 @@ class _MainAppState extends State<MainApp> {
               ],
             ),
           ),
+          floatingActionButton: Column(mainAxisSize: MainAxisSize.min, children: [
+            SizedBox(height: 30),
+            FloatingActionButton.small(child: Icon(_getPlayModeIcon()), onPressed: _changePlayMode),
+          ]),
+          floatingActionButtonLocation: FloatingActionButtonLocation.miniEndTop,
         );
       }),
     );
@@ -182,18 +194,34 @@ class _MainAppState extends State<MainApp> {
 
   /// Callback for PLAY and PAUSE buttons
   void _onPlayButtonClick() {
-    if (widget.player.playing)
-      widget.player.pause();
-    else widget.player.play();
+    setState(() {
+      if (widget.player.playing)
+        widget.player.pause();
+      else widget.player.play();
+    });
   }
 
-  /// Updates current song name in "setState" manner
-  void _updateCurrentSong() {
-    final int? index = widget.player.currentIndex;
-    final seq = widget.player.audioSources;
-    if (index != null && seq.isNotEmpty) {
+  void _onPlaybackEvent(PlaybackEvent e) {
+    final idx = e.currentIndex;
+    if (idx != null && idx != _prevIndex && idx < widget.player.audioSources.length && e.processingState == ProcessingState.ready) {
+      print("Playlist index = $idx");
+      _prevIndex = idx;
+
+      final MediaItem item = widget.player.audioSources[idx].sequence.first.tag;
+      final model = ScopedModel.of<MyModel>(context);
+      final allSongsRated = !model.scoreExists(score: 0);
+      if (allSongsRated) {
+        final stars = item.rating?.getStarRating() ?? 0;
+        final minStars = Settings.local.minStarsToPlay;
+        final playOnlyTop = minStars > 0 && model.scoreExists(minScore: minStars);
+        final play = playOnlyTop ? stars >= minStars : model.random.nextDouble() < stars / 5.0;
+        if (!play) {
+          print("Skipping to next");
+          Future.delayed(Duration.zero, () => widget.player.seekToNext());
+        }
+      }
       setState(() {
-        currentSong = "${seq[index].sequence.first.tag.title}";
+        currentSong = item.title;
       });
     }
   }
@@ -213,5 +241,26 @@ class _MainAppState extends State<MainApp> {
         await SharePlus.instance.share(ShareParams(title: 'Save file "$fileName"?', files: [XFile(filepath)]));
       }
     } catch (e) { TommyLogger.logger.error("Error sharing file $fileName: $e", 3000); }
+  }
+
+  IconData _getPlayModeIcon() {
+    switch (Settings.local.minStarsToPlay) {
+      case 1:  return LineIcons.diceOne;
+      case 2:  return LineIcons.diceTwo;
+      case 3:  return LineIcons.diceThree;
+      case 4:  return LineIcons.diceFour;
+      case 5:  return LineIcons.diceFive;
+      default: return LineIcons.diceD6;
+    }
+  }
+
+  void _changePlayMode() async {
+    if (ScopedModel.of<MyModel>(context).scoreExists(score: 0))
+      TommyLogger.logger.warn("You can set min stars once all songs are rated", 2000);
+    else setState(() {
+      final newMinStars = (Settings.local.minStarsToPlay + 1) % 6;
+      TommyLogger.logger.info("Setting min stars to $newMinStars", 1000);
+      Settings.local.setMinStarsToPlay(newMinStars);
+    });
   }
 }
