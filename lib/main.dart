@@ -12,7 +12,7 @@ import 'package:tommyplayer/settings/settings.dart';
 import 'package:tommyplayer/settings/settingswidget.dart';
 import 'package:tommyplayer/model.dart';
 
-// 1. allow insecure "http" in settings (iOS/MacOS: NSAllowsArbitraryLoads, Android: usesCleartextTraffic (now deprecated, check)
+// 1. allow insecure "http" in settings (iOS/MacOS: NSAllowsArbitraryLoads, Android: usesCleartextTraffic
 // 2. there is a bug with ratings of files with cyrillic "й" and "ё" named in Windows; bug is not fixed (I've just renamed files)
 
 /*
@@ -21,7 +21,13 @@ Build for iOS:
   flutter build ios
   xCode: Product -> Destination -> Any iOS Device (arm64)
   xCode: Product -> Archive -> Distribute App -> Release Testing
-  rename and move *.ipa file to _dist
+  rename and move *.ipa file to dist/
+
+Build for Android:
+  bump version in pubspec.yaml
+  flutter build apk
+  AndroidStudio: Build -> Generate Signed App Bundle or APK -> APK -> choose android/keystore.jks -> release
+  rename and move *.apk file to dist/
 
 Build for MacOS:
   bump version in pubspec.yaml
@@ -30,7 +36,7 @@ Build for MacOS:
   xCode: Product -> Archive -> Distribute App -> Direct Distribution -> wait for 30-40 sec for notarization service to complete
   copy "*.app" to "_installer/macos/App"
   run _installer/macos/build-dmg.sh
-  move *.dmg image to _dist/
+  move *.dmg image to dist/
  */
 void main() async {
   WidgetsFlutterBinding.ensureInitialized(); // allow "async" in main

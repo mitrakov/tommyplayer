@@ -1,4 +1,4 @@
-# built with Flutter 3.38.5 (Mac Apple M1), Dart SDK 3.10.4, CocoaPods 1.16.2, Xcode 26.2
+# built with Flutter 3.38.5 (Mac Apple M1), Dart SDK 3.10.4, CocoaPods 1.16.2, Xcode 26.2, Android Studio 2025.2.3
 name: tommyplayer
 description: Tommy Player for iOS, Android and MacOS (Windows/Linux are not supported)
 version: 1.8.0+24
@@ -22,13 +22,17 @@ dependencies:
   cupertino_icons: 1.0.8                # extra icons
   line_icons: 2.0.3                     # extra icons
 
+dependency_overrides:
+  sqflite: 2.4.1                        # bug in just_audio_background: it uses old version of sqflite, incompatible with Android
+
 flutter:
   uses-material-design: true            # Material Icons font
 
 dev_dependencies:
-  flutter_launcher_icons: 0.14.4        # Icons generator, run: "dart run flutter_launcher_icons"
+  flutter_launcher_icons: 0.14.4        # icons generator, run: "dart run flutter_launcher_icons"
 
-flutter_launcher_icons:
+flutter_launcher_icons:                 # dart run flutter_launcher_icons
+  android: "ic_launcher"
   ios: true
   image_path: "installer/mac/appicon.png"
   macos:
