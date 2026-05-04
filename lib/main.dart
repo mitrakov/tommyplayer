@@ -12,6 +12,8 @@ import 'package:tommyplayer/settings/settings.dart';
 import 'package:tommyplayer/settings/settingswidget.dart';
 import 'package:tommyplayer/model.dart';
 
+// TODO: cancel subscriptions in dispose()
+
 // 1. allow insecure "http" in settings (iOS/MacOS: NSAllowsArbitraryLoads, Android: usesCleartextTraffic
 // 2. there is a bug with ratings of files with cyrillic "й" and "ё" named in Windows; bug is not fixed (I've just renamed files)
 
